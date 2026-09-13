@@ -1,17 +1,20 @@
 import { FREE_POCKET_CATEGORIES } from "../domain/inventory";
+import { SpecifiedCardCollection } from "../domain/specified-cards";
+import { SPECIFIED_CARD_DEFINITIONS } from "../data/specified-card-definitions";
+import { createSpecifiedCardElement, createUnacquiredSpecifiedSlot } from "./specified-card";
 
 const CATEGORY_LABELS: Record<(typeof FREE_POCKET_CATEGORIES)[number], string> = { spell:"スペル", food:"食料", equipment:"装備", event:"イベント用", other:"その他", material:"素材", valuable:"換金品" };
 
 export class BookView {
   private specifiedPage = 0;
   private startX: number | null = null;
-  constructor(private dialog: HTMLDialogElement) {
+  constructor(private dialog: HTMLDialogElement, private cards = new SpecifiedCardCollection()) {
     dialog.innerHTML = `<button class="close" aria-label="閉じる">×</button><h2>BOOK</h2><nav class="book-tabs"><button data-book-tab="specified">指定ポケット</button><button data-book-tab="free">フリーポケット</button><button data-book-tab="records">記録</button><button data-book-tab="recipes">レシピ</button></nav><section class="book-content"></section>`;
     dialog.querySelector<HTMLButtonElement>(".close")!.addEventListener("click",()=>dialog.close());
     dialog.querySelectorAll<HTMLButtonElement>("[data-book-tab]").forEach(button=>button.addEventListener("click",()=>this.render(button.dataset.bookTab!)));
     this.render("specified");
   }
-  open(): void { this.dialog.showModal(); }
+  open(): void { this.dialog.showModal(); this.render("specified"); }
   private render(tab: string): void {
     const content=this.dialog.querySelector<HTMLElement>(".book-content")!;
     this.dialog.querySelectorAll("[data-book-tab]").forEach(button=>button.classList.toggle("active",(button as HTMLElement).dataset.bookTab===tab));
@@ -22,7 +25,13 @@ export class BookView {
   }
   private renderSpecified(content: HTMLElement): void {
     const first=this.specifiedPage*9+1;
-    content.innerHTML=`<h3>指定ポケット</h3><div class="book-grid">${Array.from({length:9},(_,i)=>`<div>No.${String(first+i).padStart(2,"0")}</div>`).join("")}</div><div class="pager"><button data-page="previous" ${this.specifiedPage===0?"disabled":""}>←</button><span>${this.specifiedPage+1} / 11</span><button data-page="next" ${this.specifiedPage===10?"disabled":""}>→</button></div>`;
+    content.innerHTML=`<h3>指定ポケット</h3><div class="book-grid"></div><div class="pager"><button data-page="previous" ${this.specifiedPage===0?"disabled":""}>←</button><span>${this.specifiedPage+1} / 11</span><button data-page="next" ${this.specifiedPage===10?"disabled":""}>→</button></div>`;
+    const grid=content.querySelector<HTMLElement>(".book-grid")!;
+    for(let i=0;i<9;i++){
+      const number=first+i;
+      const definition=SPECIFIED_CARD_DEFINITIONS.get(number);
+      grid.append(this.cards.has(number)&&definition?createSpecifiedCardElement(definition,"book"):createUnacquiredSpecifiedSlot(number));
+    }
     content.querySelectorAll<HTMLButtonElement>("[data-page]").forEach(button=>button.addEventListener("click",()=>this.changePage(button.dataset.page==="next"?1:-1,content)));
     content.addEventListener("pointerdown",event=>{this.startX=event.clientX;},{once:true});
     content.addEventListener("pointerup",event=>{if(this.startX===null)return; const delta=event.clientX-this.startX; this.startX=null; if(Math.abs(delta)>=40)this.changePage(delta<0?1:-1,content);},{once:true});
