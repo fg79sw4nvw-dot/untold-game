@@ -1,14 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { GameClock, timeBand } from "./clock";
+import { CONVERSATION_RECALL_MINUTES, ConversationHistory, type DialogueSentence } from "./conversation";
 import { equip, unequip, type EquipmentCard } from "./equipment";
 import { addCard, addMaterial, FREE_POCKET_CAPACITY, type PocketCard } from "./inventory";
 import { RecordBook, type RecordEntry } from "./records";
 const card=(id:string):EquipmentCard=>({instanceId:id,definitionId:"coat",category:"equipment",equipmentSlot:"wear"});
 const record=(id:string,clues:string[]=[]):RecordEntry=>({id,text:`text-${id}`,sourceType:"npc",sourceId:"npc",locationId:"eld",recordedAt:"",clueIds:clues,marks:[]});
+const sentence=(id:string,text:string):DialogueSentence=>({id,text,clueIds:[]});
 describe("confirmed domain rules",()=>{
  it("uses 180 slots and stacks only material to 99",()=>{let inv=[] as ReturnType<typeof addMaterial>["inventory"]; inv=addMaterial(inv,"wood",98).inventory; const result=addMaterial(inv,"wood",4); expect(result.inventory).toEqual([{definitionId:"wood",category:"material",quantity:99}]); expect(result.discarded).toBe(3); expect(FREE_POCKET_CAPACITY).toBe(180);});
  it("requires space for a new non-material card",()=>{let inv=[] as PocketCard[]; for(let i=0;i<180;i++) inv=addCard(inv,card(String(i))).inventory as PocketCard[]; expect(addCard(inv,card("overflow")).needsSpace).toBe(true);});
  it("moves equipment outside pocket capacity and blocks unequip at capacity",()=>{const first=card("a"); const worn=equip([first],{},"a","wear"); expect(worn.inventory).toHaveLength(0); const full=Array.from({length:180},(_,i)=>card(String(i))); expect(unequip(full,worn.equipped,"wear").blocked).toBe(true);});
  it("counts shared clues and removes only one source",()=>{const book=new RecordBook(); book.add(record("a",["clue"])); book.add(record("b",["clue"])); book.delete("a"); expect(book.clueCount("clue")).toBe(1);});
  it("advances two game minutes per real second and cycles seasons",()=>{const clock=new GameClock({season:"spring",day:3,hour:23,minute:59}); clock.setPaused(false); clock.advanceRealSeconds(1); expect(clock.time).toEqual({season:"summer",day:1,hour:0,minute:1}); expect(timeBand(20)).toBe("night");});
+ it("keeps only the latest NPC conversation for six game hours",()=>{const history=new ConversationHistory(); history.open("npc-a"); history.append("npc-a",[sentence("a1","first")]); expect(history.getRemainingMinutes()).toBe(CONVERSATION_RECALL_MINUTES); history.elapseGameMinutes(CONVERSATION_RECALL_MINUTES-1); expect(history.getLastSession()?.npcId).toBe("npc-a"); history.elapseGameMinutes(1); expect(history.getLastSession()).toBeNull();});
+ it("resets recall duration when talking to the same NPC and overwrites it for another NPC",()=>{const history=new ConversationHistory(); history.open("npc-a"); history.append("npc-a",[sentence("a1","first")]); history.elapseGameMinutes(120); history.open("npc-a"); expect(history.getRemainingMinutes()).toBe(CONVERSATION_RECALL_MINUTES); expect(history.getLastSession()?.sentences.map(item=>item.text)).toEqual(["first"]); history.open("npc-b"); expect(history.getLastSession()).toEqual({npcId:"npc-b",sentences:[]});});
+ it("starts a new session after expiry and restores saved recall state",()=>{const history=new ConversationHistory(); history.open("npc-a"); history.append("npc-a",[sentence("a1","first")]); history.elapseGameMinutes(60); const saved=history.saveRecallState(); const restored=new ConversationHistory(); restored.restoreRecallState(saved); expect(restored.getRemainingMinutes()).toBe(CONVERSATION_RECALL_MINUTES-60); expect(restored.getLastSession()?.sentences.map(item=>item.text)).toEqual(["first"]); restored.elapseGameMinutes(CONVERSATION_RECALL_MINUTES); restored.open("npc-a"); expect(restored.getLastSession()).toEqual({npcId:"npc-a",sentences:[]});});
 });
