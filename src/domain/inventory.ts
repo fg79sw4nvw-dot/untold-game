@@ -7,6 +7,7 @@ export type PocketCard = { instanceId: string; definitionId: string; category: E
 export type MaterialStack = { definitionId: string; category: "material"; quantity: number };
 export type PocketEntry = PocketCard | MaterialStack;
 export type AddResult = { inventory: PocketEntry[]; added: number; discarded: number; needsSpace: boolean };
+export type ConsumeResult = { inventory: PocketEntry[]; consumed: boolean };
 
 export function usedSlots(inventory: readonly PocketEntry[]): number { return inventory.length; }
 
@@ -28,4 +29,18 @@ export function addMaterial(inventory: readonly PocketEntry[], definitionId: str
   const added = Math.max(0, Math.min(quantity, MATERIAL_STACK_LIMIT));
   next.push({ definitionId, category: "material", quantity: added });
   return { inventory: next, added, discarded: Math.max(0, quantity - added), needsSpace: false };
+}
+
+export function consumeOne(inventory: readonly PocketEntry[], definitionId: string): ConsumeResult {
+  const next = inventory.map(entry => ({ ...entry })) as PocketEntry[];
+  const index = next.findIndex(entry => entry.definitionId === definitionId);
+  if (index < 0) return { inventory: next, consumed: false };
+
+  const entry = next[index];
+  if (entry.category === "material" && entry.quantity > 1) {
+    entry.quantity -= 1;
+  } else {
+    next.splice(index, 1);
+  }
+  return { inventory: next, consumed: true };
 }
