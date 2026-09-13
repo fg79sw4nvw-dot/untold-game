@@ -1,5 +1,6 @@
 import "./styles.css";
 import { TOWNS, type Point } from "./data/world";
+import { SpecifiedCardCollection } from "./domain/specified-cards";
 import { PassabilityMask } from "./game/passability";
 import { WorldView } from "./game/world-view";
 import { BookView } from "./ui/book-view";
@@ -20,6 +21,8 @@ const begin = document.querySelector<HTMLButtonElement>("#begin")!;
 select.addEventListener("change",()=>{ begin.disabled=!select.value; });
 begin.addEventListener("click",()=>{ const town=TOWNS.find(t=>t.id===select.value); if(!town)return; world.setOrigin(town.position); document.querySelector(".origin")?.remove(); });
 for (const button of document.querySelectorAll<HTMLButtonElement>("[data-dir]")) { const direction=button.dataset.dir!; for(const start of ["pointerdown","touchstart"]){button.addEventListener(start,e=>{e.preventDefault();world.setDirection(direction,true);});} for(const end of ["pointerup","pointercancel","pointerleave","touchend"]){button.addEventListener(end,e=>{e.preventDefault();world.setDirection(direction,false);});} }
+
+const specifiedCards = new SpecifiedCardCollection();
 const book=document.querySelector<HTMLDialogElement>("#book")!;
-const bookView=new BookView(book);
+const bookView=new BookView(book, specifiedCards);
 document.querySelector<HTMLButtonElement>("[data-panel=book]")!.addEventListener("click",()=>bookView.open());
