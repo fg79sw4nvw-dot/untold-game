@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { BRIDGES, ROADS, TOWNS, WORLD } from "./world";
+describe("confirmed world data",()=>{it("keeps the confirmed canvas and movement scale",()=>{expect(WORLD).toMatchObject({width:16000,height:10000,stepPx:32,playerSpeedPxPerSecond:110,collisionWidthPx:32});});it("contains only normalized town coordinates",()=>{expect(TOWNS).toHaveLength(8);expect(TOWNS.some(t=>t.name==="マレスタ")).toBe(false);expect(TOWNS.some(t=>t.name==="スカルド")).toBe(false);});it("contains four roads and three bridges",()=>{expect(ROADS).toHaveLength(4);expect(BRIDGES).toHaveLength(3);expect(BRIDGES.every(b=>b.passableWidth===96)).toBe(true);});});
