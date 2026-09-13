@@ -44,10 +44,12 @@ describe("No.55 confirmed progression", () => {
     expect(quests.status(QUEST_BOOK_EATING_RAT)).toBe("completed");
   });
 
-  it("does not mechanically require recorded clueIds where the card page does not explicitly define that gate", () => {
-    const quests = new QuestTracker();
-    const cards = new SpecifiedCardCollection([1] as never);
-    const flow = new BookEatingRatFlow(new ProgressState(), quests, cards);
+  it("does not start the introduction before No.01 has been acquired", () => {
+    const cards = new SpecifiedCardCollection();
+    const flow = new BookEatingRatFlow(new ProgressState(), new QuestTracker(), cards);
+
     expect(flow.canTriggerIntro()).toBe(false);
+    cards.acquire(1);
+    expect(flow.canTriggerIntro()).toBe(true);
   });
 });
