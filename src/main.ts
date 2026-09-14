@@ -1,7 +1,11 @@
 import "./styles.css";
 import "./first-book-reading.css";
 import "./library-tutorial.css";
-import { ELD_LIBRARY_LAYOUT, type LibraryTilePoint } from "./data/eld-library";
+import {
+  ELD_LIBRARY_LAYOUT,
+  ELD_LIBRARY_TILE_SIZE,
+  type LibraryTilePoint,
+} from "./data/eld-library";
 import {
   AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS,
   BOOK_DISCOVERY_THOUGHT,
@@ -31,11 +35,13 @@ import { QuestTracker } from "./domain/quests";
 import { SpecifiedCardCollection } from "./domain/specified-cards";
 import { BookEatingRatFlow } from "./game/book-eating-rat";
 import { EldIntroFlow } from "./game/eld-intro";
+import { rankInteractionCandidates } from "./game/interaction-targeting";
 import { LibraryTutorialController } from "./game/library-tutorial-controller";
 import { LibraryTutorialPresentation } from "./game/library-tutorial-presentation";
 import { OpeningSequenceController } from "./game/opening-sequence-controller";
 import { CardizationView } from "./ui/cardization-view";
 import { FirstBookMessageView } from "./ui/first-book-message-view";
+import { LibraryFreeRoamInput } from "./ui/library-free-roam-input";
 import { LibraryOpeningView } from "./ui/library-opening-view";
 import { OpeningCinematicView } from "./ui/opening-cinematic-view";
 
@@ -71,6 +77,13 @@ const libraryTutorial = new LibraryTutorialPresentation(
   cardization,
   wait,
 );
+const libraryFreeRoam = new LibraryFreeRoamInput(
+  libraryStage,
+  libraryOpening,
+  handleLibraryTap,
+);
+
+void libraryFreeRoam;
 
 function nextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
@@ -78,6 +91,29 @@ function nextFrame(): Promise<void> {
 
 function wait(ms: number): Promise<void> {
   return new Promise(resolve => window.setTimeout(resolve, ms));
+}
+
+function tileCenter([x, y]: LibraryTilePoint): { x: number; y: number } {
+  return {
+    x: (x + 0.5) * ELD_LIBRARY_TILE_SIZE,
+    y: (y + 0.5) * ELD_LIBRARY_TILE_SIZE,
+  };
+}
+
+async function handleLibraryTap(): Promise<void> {
+  if (!libraryTutorialFlow.shouldShowBookmarkLight()) return;
+
+  const ranked = rankInteractionCandidates(
+    libraryOpening.getProtagonistPosition(),
+    libraryOpening.getFacingVector(),
+    [{
+      value: "bookmark-light" as const,
+      position: tileCenter(ELD_LIBRARY_LAYOUT.bookmarkLight.tilePosition),
+    }],
+  );
+
+  if (ranked[0]?.value !== "bookmark-light") return;
+  await libraryTutorial.inspectBookmarkLight();
 }
 
 async function showDialogueRange(start: number, end: number): Promise<void> {
