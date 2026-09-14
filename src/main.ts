@@ -2,12 +2,22 @@ import "./styles.css";
 import "./first-book-reading.css";
 import { ELD_LIBRARY_LAYOUT, type LibraryTilePoint } from "./data/eld-library";
 import {
+  AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS,
   BOOK_DISCOVERY_THOUGHT,
   BOOK_DISCOVERY_TO_ACQUIRE_MS,
   FIRST_BOOK_CLOSED_PAUSE_MS,
   FIRST_BOOK_MESSAGE_INPUT_LOCK_MS,
   FIRST_BOOK_TITLE_PAUSE_MS,
   FIRST_BOOK_TITLE_THOUGHT,
+  LIBRARIAN_AFTER_FAREWELL_TO_FREE_MS,
+  LIBRARIAN_AFTER_SELF_ONLY_THOUGHT_PAUSE_MS,
+  LIBRARIAN_BOOK_INSPECTION_PAUSE_MS,
+  LIBRARIAN_BOOK_REPORT_DIALOGUE,
+  LIBRARIAN_OBSERVES_PROTAGONIST_PAUSE_MS,
+  LIBRARIAN_REPORT_BEFORE_INSPECTION_END,
+  LIBRARIAN_REPORT_BEFORE_OBSERVATION_END,
+  LIBRARIAN_REPORT_SELF_ONLY_THOUGHT_INDEX,
+  LIBRARIAN_REPORT_START_PAUSE_MS,
   LIBRARY_BOOK_DISCOVERY_PAUSE_MS,
   LIBRARY_OPENING_DIALOGUE,
   LIBRARY_SORTING_PAUSE_MS,
@@ -48,6 +58,54 @@ function wait(ms: number): Promise<void> {
   return new Promise(resolve => window.setTimeout(resolve, ms));
 }
 
+async function showDialogueRange(start: number, end: number): Promise<void> {
+  for (let index = start; index < end; index += 1) {
+    const line = LIBRARIAN_BOOK_REPORT_DIALOGUE[index];
+    if (line !== undefined) await libraryOpening.showLine(line);
+  }
+}
+
+async function playConfirmedLibrarianReport(): Promise<void> {
+  await wait(AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS);
+  await libraryOpening.moveTo(
+    ELD_LIBRARY_LAYOUT.openingEvent.librarianReportTile,
+    ELD_LIBRARY_LAYOUT.openingEvent.librarianReportFacing,
+  );
+  await wait(LIBRARIAN_REPORT_START_PAUSE_MS);
+
+  if (!openingFlow.beginLibrarianReport()) return;
+  libraryOpening.setOpeningPhase("librarian-report");
+
+  await showDialogueRange(0, LIBRARIAN_REPORT_BEFORE_INSPECTION_END);
+
+  // The transfer itself is confirmed, while a dedicated hand-over animation is not.
+  libraryOpening.setBookHolder("librarian");
+  await wait(LIBRARIAN_BOOK_INSPECTION_PAUSE_MS);
+
+  await showDialogueRange(
+    LIBRARIAN_REPORT_BEFORE_INSPECTION_END,
+    LIBRARIAN_REPORT_BEFORE_OBSERVATION_END,
+  );
+
+  libraryOpening.setBookHolder("protagonist");
+  await wait(LIBRARIAN_OBSERVES_PROTAGONIST_PAUSE_MS);
+
+  await showDialogueRange(
+    LIBRARIAN_REPORT_BEFORE_OBSERVATION_END,
+    LIBRARIAN_REPORT_SELF_ONLY_THOUGHT_INDEX + 1,
+  );
+  await wait(LIBRARIAN_AFTER_SELF_ONLY_THOUGHT_PAUSE_MS);
+
+  await showDialogueRange(
+    LIBRARIAN_REPORT_SELF_ONLY_THOUGHT_INDEX + 1,
+    LIBRARIAN_BOOK_REPORT_DIALOGUE.length,
+  );
+  await wait(LIBRARIAN_AFTER_FAREWELL_TO_FREE_MS);
+
+  openingFlow.finishLibrarianReport();
+  libraryOpening.setOpeningPhase("free-library");
+}
+
 async function playConfirmedFirstBookReading(): Promise<void> {
   if (!openingFlow.showFirstBookMessage()) return;
 
@@ -71,6 +129,7 @@ async function playConfirmedFirstBookReading(): Promise<void> {
 
   openingFlow.finishFirstBookMessage();
   await libraryOpening.showLine({ speaker: null, text: PROTAGONIST_AFTER_FIRST_BOOK_READING });
+  await playConfirmedLibrarianReport();
 }
 
 async function playConfirmedLibraryOpening(): Promise<void> {
