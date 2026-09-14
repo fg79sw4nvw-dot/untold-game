@@ -10,10 +10,12 @@ import {
   AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS,
   BOOK_DISCOVERY_THOUGHT,
   BOOK_DISCOVERY_TO_ACQUIRE_MS,
+  BOOK_RAT_INTRO_TO_FIRST_RECORDING_THOUGHT_MS,
   FIRST_BOOK_CLOSED_PAUSE_MS,
   FIRST_BOOK_MESSAGE_INPUT_LOCK_MS,
   FIRST_BOOK_TITLE_PAUSE_MS,
   FIRST_BOOK_TITLE_THOUGHT,
+  FIRST_RECORDING_THOUGHTS,
   LIBRARIAN_AFTER_FAREWELL_TO_FREE_MS,
   LIBRARIAN_AFTER_SELF_ONLY_THOUGHT_PAUSE_MS,
   LIBRARIAN_BOOK_INSPECTION_PAUSE_MS,
@@ -81,6 +83,7 @@ const libraryFreeRoam = new LibraryFreeRoamInput(
   libraryStage,
   libraryOpening,
   handleLibraryTap,
+  handleLibraryExitAttempt,
 );
 
 void libraryFreeRoam;
@@ -114,6 +117,26 @@ async function handleLibraryTap(): Promise<void> {
 
   if (ranked[0]?.value !== "bookmark-light") return;
   await libraryTutorial.inspectBookmarkLight();
+}
+
+async function beginFirstRecordingThoughts(): Promise<void> {
+  libraryOpening.setOpeningPhase("first-recording-thoughts");
+  await wait(BOOK_RAT_INTRO_TO_FIRST_RECORDING_THOUGHT_MS);
+  for (const thought of FIRST_RECORDING_THOUGHTS) {
+    await libraryOpening.showLine({ speaker: null, text: thought });
+  }
+
+  // The fixed target sentence is confirmed, but the concrete candidate-selection
+  // presentation for the first recording remains unresolved in the Wiki.
+  // Stop at the confirmed UI boundary rather than inventing that presentation.
+  libraryOpening.setOpeningPhase("first-recording-awaiting-selection-ui");
+}
+
+async function handleLibraryExitAttempt(): Promise<void> {
+  const result = await libraryTutorial.attemptLibraryExit();
+  if (result === "book-rat-intro") {
+    await beginFirstRecordingThoughts();
+  }
 }
 
 async function showDialogueRange(start: number, end: number): Promise<void> {
