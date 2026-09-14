@@ -9,6 +9,7 @@ import {
 const NORMAL_MOVEMENT_SPEED_PX_PER_SECOND = 110;
 
 type Facing = "up" | "right" | "down" | "left";
+type BookHolder = "protagonist" | "librarian";
 
 type DialogueLine = Readonly<{
   speaker: string | null;
@@ -118,6 +119,14 @@ export class LibraryOpeningView {
     this.protagonist?.setAttribute("data-facing", facing);
   }
 
+  setBookHolder(holder: BookHolder): void {
+    this.stage.dataset.bookHolder = holder;
+  }
+
+  setOpeningPhase(phase: string): void {
+    this.stage.dataset.openingPhase = phase;
+  }
+
   async moveTo(tile: LibraryTilePoint, facing?: Facing): Promise<void> {
     const durationMs = movementDurationMs(this.protagonistTile, tile);
     this.protagonist.style.transitionDuration = `${durationMs}ms`;
@@ -155,5 +164,6 @@ export class LibraryOpeningView {
 
   takeBook(): void {
     this.bookMarker.hidden = true;
+    this.setBookHolder("protagonist");
   }
 }
