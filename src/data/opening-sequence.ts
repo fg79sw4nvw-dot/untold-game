@@ -8,6 +8,9 @@ export const OPENING_MONOLOGUE = [
   "（それでも、考えるのをやめられない。）",
 ] as const;
 
+// Wiki currently uses about four seconds per line as a provisional basis.
+export const OPENING_MONOLOGUE_PROVISIONAL_LINE_MS = 4000;
+
 export const GAME_MASTER_FIRST_MESSAGE = [
   "これを読めているなら、少なくとも少しは物好きらしい。",
   "知らないものを、そのままにしておけないことはあるか。",
@@ -22,14 +25,30 @@ export const GAME_MASTER_FIRST_MESSAGE = [
 
 export const PROTAGONIST_AFTER_FIRST_BOOK_READING = "（どういうことだ……？）";
 
-export const LIBRARIAN_BOOK_CHECK_END = [
+export const LIBRARIAN_BOOK_REPORT_DIALOGUE = [
+  { speaker: "主人公", text: "この本……読めた。" },
+  { speaker: "司書", text: "読めた？" },
+  { speaker: "主人公", text: "文字が書いてある。" },
+  { speaker: "司書", text: "……そんなわけないでしょう。" },
+  { speaker: "司書", text: "見せて。" },
+  { speaker: "司書", text: "……何も書いてないよ。" },
+  { speaker: "主人公", text: "でも、さっきは……" },
   { speaker: "司書", text: "いつもの本と同じ。" },
+  { speaker: "司書", text: "顔色、あまりよくないけど大丈夫？" },
   { speaker: null, text: "（自分にしか、見えてない……？）" },
   { speaker: "主人公", text: "……今日は、もう帰っていい？" },
   { speaker: "司書", text: "うん、いいよ。" },
   { speaker: "主人公", text: "この本、持って帰ってもいい？" },
   { speaker: "司書", text: "うん。気になるなら持っていって。" },
   { speaker: "司書", text: "気をつけて帰ってね。" },
+] as const;
+
+// These two opening dialogue beats are confirmed semantically, but their exact
+// displayed wording is not fixed in the Wiki. They are kept as intents rather
+// than invented lines.
+export const LIBRARY_OPENING_UNFIXED_DIALOGUE_INTENTS = [
+  "司書が、主人公が日頃から図書館を手伝っていることへの感謝を伝える。",
+  "主人公が、好きでやっているだけという趣旨の短い発話を返す。",
 ] as const;
 
 export const LIBRARIAN_REPEAT_BEFORE_BOOKMARK = "気をつけて帰ってね。";
