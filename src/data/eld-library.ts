@@ -5,9 +5,17 @@ import { ELD_NPC_LIBRARIAN } from "./eld-content";
 export const ELD_TOWN_MAP_ID = "eld-town";
 export const ELD_LIBRARY_ENTRY_ANCHOR = [1504, 992] as const satisfies Point;
 export const ELD_LIBRARY_TILE_SIZE = 64;
-export const ELD_LIBRARY_GRID_SIZE = [9, 7] as const;
-export const ELD_LIBRARY_PIXEL_SIZE = [576, 448] as const;
+export const ELD_LIBRARY_GRID_SIZE = [10, 16] as const;
+export const ELD_LIBRARY_PIXEL_SIZE = [640, 1024] as const;
 export const ELD_LIBRARY_ENTRANCE_WIDTH = 128;
+
+export type LibraryTilePoint = readonly [x: number, y: number];
+export type LibraryTileRect = Readonly<{
+  x: number;
+  y: number;
+  widthTiles: number;
+  heightTiles: number;
+}>;
 
 export type LibraryVisitorRule =
   | { npcId: string; kind: "always" }
@@ -38,7 +46,8 @@ export const ELD_LIBRARY_LAYOUT = {
   pixelHeight: ELD_LIBRARY_PIXEL_SIZE[1],
   entrance: {
     edge: "bottom",
-    alignment: "center",
+    xTiles: [4, 5] as const,
+    widthTiles: 2,
     width: ELD_LIBRARY_ENTRANCE_WIDTH,
   },
   playerSpawn: {
@@ -46,39 +55,52 @@ export const ELD_LIBRARY_LAYOUT = {
     pixelPosition: null,
   },
   librarianCounter: {
-    location: "immediately-left-of-entrance",
-    widthTiles: 1,
-    heightTiles: 2,
+    rect: { x: 1, y: 12, widthTiles: 1, heightTiles: 3 } as LibraryTileRect,
+    librarianTile: [0, 13] as const satisfies LibraryTilePoint,
     librarianFacing: "right",
   },
   basementStairs: {
-    location: "behind-librarian-counter",
-    widthTiles: 1,
-    heightTiles: 1,
+    rect: { x: 0, y: 12, widthTiles: 1, heightTiles: 1 } as LibraryTileRect,
     blockedByLockedDoorAtGameStart: true,
   },
   shelves: {
-    topWallTiles: 9,
-    leftWallTopTiles: 3,
-    centralRows: 2,
-    centralShelfWidthTiles: 4,
-    centralRowGapPixels: 96,
-    centralOffsetRightPixels: 32,
+    topWall: { x: 0, y: 0, widthTiles: 10, heightTiles: 1 } as LibraryTileRect,
+    leftWall: { x: 0, y: 1, widthTiles: 1, heightTiles: 6 } as LibraryTileRect,
+    rightWall: { x: 9, y: 1, widthTiles: 1, heightTiles: 5 } as LibraryTileRect,
+    centralBack: { x: 3, y: 4, widthTiles: 5, heightTiles: 1 } as LibraryTileRect,
+    centralFront: { x: 3, y: 7, widthTiles: 5, heightTiles: 1 } as LibraryTileRect,
+    auxiliary: { x: 4, y: 10, widthTiles: 5, heightTiles: 1 } as LibraryTileRect,
   },
   readingDesk: {
-    location: "lower-right-wall",
-    widthTiles: 3,
-    stoolCount: 3,
-    stoolSide: "above",
+    rect: { x: 5, y: 13, widthTiles: 4, heightTiles: 1 } as LibraryTileRect,
+    stoolTiles: [
+      [5, 12],
+      [6, 12],
+      [7, 12],
+      [8, 12],
+    ] as const satisfies readonly LibraryTilePoint[],
     seatedFacing: "down",
   },
   bookmarkLight: {
-    location: "left-side-of-reading-desk",
+    tilePosition: [5, 13] as const satisfies LibraryTilePoint,
+    investigationTile: [4, 13] as const satisfies LibraryTilePoint,
+    investigationFacing: "right",
     pixelPosition: null,
   },
   bookEatingRatInvestigationPoint: {
-    location: "upper-left-floor-near-left-and-top-shelf-intersection",
+    tilePosition: [1, 1] as const satisfies LibraryTilePoint,
     pixelPosition: null,
+  },
+  openingEvent: {
+    sortingAnchors: [
+      [8, 1],
+      [5, 1],
+      [2, 1],
+      [3, 8],
+    ] as const satisfies readonly LibraryTilePoint[],
+    bookDiscoveryTile: [3, 5] as const satisfies LibraryTilePoint,
+    bookTile: [3, 4] as const satisfies LibraryTilePoint,
+    routeAroundCentralShelfColumn: 2,
   },
 } as const;
 
