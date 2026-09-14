@@ -5,7 +5,7 @@ import { EldIntroFlow } from "./eld-intro";
 import { resolveTransition, type MapTransition } from "./map-transitions";
 
 describe("Eld library intro transition integration", () => {
-  it("blocks the library exit transition until No.01 is acquired", () => {
+  it("blocks exit for No.01 first, then routes into the No.55 intro", () => {
     const progress = new ProgressState();
     const cards = new SpecifiedCardCollection();
     const flow = new EldIntroFlow(progress, cards);
@@ -23,6 +23,8 @@ describe("Eld library intro transition integration", () => {
     expect(resolveTransition("library-test", [32, 32], [exit]).status).toBe("blocked");
 
     flow.inspectBookmarkLight();
-    expect(resolveTransition("library-test", [32, 32], [exit]).status).toBe("allowed");
+    const afterBookmark = resolveTransition("library-test", [32, 32], [exit]);
+    expect(afterBookmark.status).toBe("blocked");
+    expect(flow.attemptLibraryExit().triggerBookRatIntro).toBe(true);
   });
 });
