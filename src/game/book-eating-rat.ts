@@ -39,8 +39,8 @@ export class BookEatingRatFlow {
     return true;
   }
 
-  startFormalQuest(): boolean {
-    if (!this.progress.has(BOOK_RAT_INTRO_SEEN)) return false;
+  startFormalQuest(nextDayReached = false): boolean {
+    if (!this.progress.has(BOOK_RAT_INTRO_SEEN) || !nextDayReached) return false;
     return this.quests.start(QUEST_BOOK_EATING_RAT);
   }
 
