@@ -3,13 +3,19 @@ import { ELD_LIBRARY_LAYOUT, type LibraryTilePoint } from "./data/eld-library";
 import {
   BOOK_DISCOVERY_THOUGHT,
   BOOK_DISCOVERY_TO_ACQUIRE_MS,
+  FIRST_BOOK_CLOSED_PAUSE_MS,
+  FIRST_BOOK_MESSAGE_INPUT_LOCK_MS,
+  FIRST_BOOK_TITLE_PAUSE_MS,
+  FIRST_BOOK_TITLE_THOUGHT,
   LIBRARY_BOOK_DISCOVERY_PAUSE_MS,
   LIBRARY_OPENING_DIALOGUE,
   LIBRARY_SORTING_PAUSE_MS,
   OPENING_MONOLOGUE,
   OPENING_MONOLOGUE_PROVISIONAL_LINE_MS,
+  PROTAGONIST_AFTER_FIRST_BOOK_READING,
 } from "./data/opening-sequence";
 import { OpeningSequenceController } from "./game/opening-sequence-controller";
+import { FirstBookMessageView } from "./ui/first-book-message-view";
 import { LibraryOpeningView } from "./ui/library-opening-view";
 import { OpeningCinematicView } from "./ui/opening-cinematic-view";
 
@@ -31,6 +37,7 @@ const libraryRoom = document.querySelector<HTMLElement>(".opening-library-stage_
 const openingFlow = new OpeningSequenceController();
 const cinematic = new OpeningCinematicView(shell);
 const libraryOpening = new LibraryOpeningView(libraryStage, libraryRoom);
+const firstBookMessage = new FirstBookMessageView(shell);
 
 function nextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
@@ -38,6 +45,31 @@ function nextFrame(): Promise<void> {
 
 function wait(ms: number): Promise<void> {
   return new Promise(resolve => window.setTimeout(resolve, ms));
+}
+
+async function playConfirmedFirstBookReading(): Promise<void> {
+  if (!openingFlow.showFirstBookMessage()) return;
+
+  firstBookMessage.showClosedBook();
+  await wait(FIRST_BOOK_CLOSED_PAUSE_MS);
+
+  // The cover-opening animation exists in the confirmed sequence, but its
+  // concrete duration and motion are still unresolved. Keep the state boundary
+  // explicit without inventing a duration here.
+  firstBookMessage.showTitleSpread();
+  await wait(FIRST_BOOK_TITLE_PAUSE_MS);
+
+  await firstBookMessage.showThought(FIRST_BOOK_TITLE_THOUGHT);
+
+  // The page-turn animation from the title spread to pages 2-3 is likewise a
+  // confirmed beat with unresolved duration. The view switches only after the
+  // title thought has ended; animation timing can be inserted at this boundary.
+  firstBookMessage.showGameMasterSpread();
+  await firstBookMessage.waitForDismissAfterLock(FIRST_BOOK_MESSAGE_INPUT_LOCK_MS);
+  firstBookMessage.hide();
+
+  openingFlow.finishFirstBookMessage();
+  await libraryOpening.showLine({ speaker: null, text: PROTAGONIST_AFTER_FIRST_BOOK_READING });
 }
 
 async function playConfirmedLibraryOpening(): Promise<void> {
@@ -77,9 +109,8 @@ async function playConfirmedLibraryOpening(): Promise<void> {
   await wait(BOOK_DISCOVERY_TO_ACQUIRE_MS);
   libraryOpening.takeBook();
 
-  // BOOK acquisition is now reached using only confirmed opening-event data.
-  // The subsequent first-reading presentation is implemented separately because
-  // its title-page/opening animation still has unresolved visual parameters.
+  await playConfirmedFirstBookReading();
+
   void sorting1;
 }
 
