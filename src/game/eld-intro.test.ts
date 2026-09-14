@@ -17,7 +17,7 @@ describe("Eld intro confirmed flow", () => {
     expect(flow.shouldShowBookmarkLight()).toBe(true);
     expect(flow.attemptLibraryExit()).toEqual({
       allowed: false,
-      message: "なにか見落としている気がする",
+      message: "（……あれは？）",
     });
 
     expect(flow.librarianRepeatLine()).toBe("気をつけて帰ってね。");
