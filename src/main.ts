@@ -1,4 +1,5 @@
 import "./styles.css";
+import "./first-book-reading.css";
 import { ELD_LIBRARY_LAYOUT, type LibraryTilePoint } from "./data/eld-library";
 import {
   BOOK_DISCOVERY_THOUGHT,
