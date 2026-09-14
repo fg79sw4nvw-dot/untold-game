@@ -101,6 +101,8 @@ export const ELD_LIBRARY_LAYOUT = {
     bookDiscoveryTile: [3, 5] as const satisfies LibraryTilePoint,
     bookTile: [3, 4] as const satisfies LibraryTilePoint,
     routeAroundCentralShelfColumn: 2,
+    librarianReportTile: [2, 13] as const satisfies LibraryTilePoint,
+    librarianReportFacing: "left",
   },
 } as const;
 
