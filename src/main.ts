@@ -1,5 +1,8 @@
 import "./styles.css";
-import { OPENING_MONOLOGUE } from "./data/opening-sequence";
+import {
+  OPENING_MONOLOGUE,
+  OPENING_MONOLOGUE_PROVISIONAL_LINE_MS,
+} from "./data/opening-sequence";
 import { OpeningSequenceController } from "./game/opening-sequence-controller";
 import { OpeningCinematicView } from "./ui/opening-cinematic-view";
 import { FirstBookMessageView } from "./ui/first-book-message-view";
@@ -47,7 +50,7 @@ async function enterLibrary(): Promise<void> {
 async function playOpeningCinematic(): Promise<void> {
   for (let index = 0; index < OPENING_MONOLOGUE.length; index += 1) {
     cinematic.showLine(index);
-    await new Promise(resolve => window.setTimeout(resolve, 4000));
+    await new Promise(resolve => window.setTimeout(resolve, OPENING_MONOLOGUE_PROVISIONAL_LINE_MS));
   }
 
   await enterLibrary();
