@@ -127,6 +127,17 @@ export class LibraryOpeningView {
     this.protagonist?.setAttribute("data-facing", facing);
   }
 
+  faceToward([targetX, targetY]: LibraryTilePoint): void {
+    const [x, y] = this.protagonistTile;
+    const dx = targetX - x;
+    const dy = targetY - y;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      this.setFacing(dx >= 0 ? "right" : "left");
+      return;
+    }
+    this.setFacing(dy >= 0 ? "down" : "up");
+  }
+
   setBookHolder(holder: BookHolder): void {
     this.stage.dataset.bookHolder = holder;
   }
