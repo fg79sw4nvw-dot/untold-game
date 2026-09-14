@@ -14,7 +14,7 @@ const honeyedNutFixture = (): PocketEntry => ({
 });
 
 describe("No.55 confirmed progression", () => {
-  it("runs from post-No.01 introduction through librarian report without inventing a wait duration", () => {
+  it("waits until the next day before starting the formal quest", () => {
     const progress = new ProgressState();
     const quests = new QuestTracker();
     const cards = new SpecifiedCardCollection();
@@ -23,7 +23,9 @@ describe("No.55 confirmed progression", () => {
 
     expect(flow.canTriggerIntro()).toBe(true);
     expect(flow.markIntroSeen()).toBe(true);
-    expect(flow.startFormalQuest()).toBe(true);
+    expect(flow.startFormalQuest(false)).toBe(false);
+    expect(quests.status(QUEST_BOOK_EATING_RAT)).toBe("inactive");
+    expect(flow.startFormalQuest(true)).toBe(true);
     expect(quests.status(QUEST_BOOK_EATING_RAT)).toBe("active");
 
     const inventory = [honeyedNutFixture()];
