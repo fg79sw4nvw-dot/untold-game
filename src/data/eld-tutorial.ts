@@ -1,8 +1,8 @@
 export const ELD_LIBRARY_ID = "eld-library";
 
 export const BOOK_RAT_CLUES = {
+  smallLivingShadow: "book-rat-small-living-shadow",
   paperEatingMouse: "book-rat-paper-eating-mouse",
-  appearsWhenQuiet: "book-rat-appears-when-quiet",
   attractedBySweetFruit: "book-rat-attracted-by-sweet-fruit",
 } as const;
 
