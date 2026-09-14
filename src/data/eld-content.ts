@@ -18,31 +18,28 @@ export const LIBRARIAN_AFTER_BOOKMARK: readonly DialogueSentence[] = [
   { id: "librarian-after-bookmark-4", text: "もし何か気づいたら、教えてくれる？", clueIds: [] },
 ];
 
-export const BOOK_EATING_RAT_CLUE_SENTENCES = {
-  librarian: {
-    sourceId: ELD_NPC_LIBRARIAN,
-    sentence: {
-      id: "book-eating-rat-shadow",
-      text: "棚の奥で小さな影を見た。人ではなく生き物のようだった。",
-      clueIds: [CLUE_BOOK_EATING_RAT_SHADOW],
-    } satisfies DialogueSentence,
+export const BOOK_EATING_RAT_CLUE_SENTENCES: readonly DialogueSentence[] = [
+  {
+    id: "book-eating-rat-shadow",
+    text: "棚の奥で小さな影を見た。人ではなく生き物のようだった。",
+    clueIds: [CLUE_BOOK_EATING_RAT_SHADOW],
   },
-  antiqueDealer: {
-    sourceId: ELD_NPC_ANTIQUE_DEALER,
-    sentence: {
-      id: "book-eating-rat-paper",
-      text: "昔、紙ばかりかじる小さな鼠を見たことがある。",
-      clueIds: [CLUE_BOOK_EATING_RAT_PAPER],
-    } satisfies DialogueSentence,
+  {
+    id: "book-eating-rat-paper",
+    text: "昔、紙ばかりかじる小さな鼠を見たことがある。",
+    clueIds: [CLUE_BOOK_EATING_RAT_PAPER],
   },
-  eastYouth: {
-    sourceId: ELD_NPC_EAST_YOUTH,
-    sentence: {
-      id: "book-eating-rat-bait",
-      text: "甘い匂いのする木の実を置いておくと寄ってくる。",
-      clueIds: [CLUE_BOOK_EATING_RAT_BAIT],
-    } satisfies DialogueSentence,
+  {
+    id: "book-eating-rat-bait",
+    text: "甘い匂いのする木の実を置いておくと寄ってくる。",
+    clueIds: [CLUE_BOOK_EATING_RAT_BAIT],
   },
+];
+
+export const BOOK_EATING_RAT_CLUE_SOURCES = {
+  [BOOK_EATING_RAT_CLUE_SENTENCES[0].id]: ELD_NPC_LIBRARIAN,
+  [BOOK_EATING_RAT_CLUE_SENTENCES[1].id]: ELD_NPC_ANTIQUE_DEALER,
+  [BOOK_EATING_RAT_CLUE_SENTENCES[2].id]: ELD_NPC_EAST_YOUTH,
 } as const;
 
 export const BOOK_EATING_RAT_BAIT_PROMPT = "蜜漬け木の実を置きますか？";
