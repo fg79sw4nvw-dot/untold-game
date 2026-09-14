@@ -1,8 +1,8 @@
 import type { SpecifiedCardDefinition } from "../data/specified-card-definitions";
 import {
   BASEMENT_LOCKED_OBSERVATION,
+  BOOKMARK_EXIT_NOTICE_THOUGHT,
   LIBRARIAN_REPEAT_BEFORE_BOOKMARK,
-  LIBRARY_EXIT_BLOCKED_MESSAGE,
 } from "../data/opening-sequence";
 import { ProgressState } from "../domain/progress";
 import { SpecifiedCardCollection } from "../domain/specified-cards";
@@ -63,7 +63,7 @@ export class EldIntroFlow {
     if (this.shouldShowBookmarkLight()) {
       return {
         allowed: false,
-        message: LIBRARY_EXIT_BLOCKED_MESSAGE,
+        message: BOOKMARK_EXIT_NOTICE_THOUGHT,
       };
     }
 
