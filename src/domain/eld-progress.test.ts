@@ -5,7 +5,6 @@ import { RecordBook } from "./records";
 import { recordConversationSentence } from "./recording-flow";
 import {
   BOOK_EATING_RAT_CLUE_SENTENCES,
-  CLUE_BOOK_EATING_RAT_PAPER,
   QUEST_BOOK_EATING_RAT,
 } from "../data/eld-content";
 
@@ -20,17 +19,19 @@ describe("Eld conversation, record, and quest foundations", () => {
     expect(history.getLastSession()?.sentences).toHaveLength(1);
   });
 
-  it("activates a clue only through a saved record", () => {
+  it("activates only the clue attached to the saved sentence", () => {
     const book = new RecordBook();
     const sentence = BOOK_EATING_RAT_CLUE_SENTENCES[0];
-    expect(book.clueCount(CLUE_BOOK_EATING_RAT_PAPER)).toBe(0);
+    const [clueId] = sentence.clueIds;
+    expect(clueId).toBeDefined();
+    expect(book.clueCount(clueId!)).toBe(0);
     expect(recordConversationSentence(book, {
       sentence,
       sourceId: "npc-a",
       locationId: "eld",
       recordedAt: "spring-1-12:00",
     })).toBe(true);
-    expect(book.clueCount(CLUE_BOOK_EATING_RAT_PAPER)).toBe(1);
+    expect(book.clueCount(clueId!)).toBe(1);
   });
 
   it("tracks the confirmed quest lifecycle without inventing failure states", () => {
