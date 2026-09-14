@@ -1,0 +1,47 @@
+/*
+ * First-reading-only presentation values live here so unresolved final visual
+ * values can be tuned without changing the canonical sequence logic.
+ */
+.first-book-message__book--closed {
+  width: min(48vw, 280px);
+  aspect-ratio: 2 / 3;
+  border: 1px solid #8d7650;
+  border-radius: 5px 9px 9px 5px;
+  background: #2b2419;
+  box-shadow: 0 18px 60px #0008;
+}
+
+.first-book-message__spread {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.first-book-message__page {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+}
+
+.first-book-message__page--title {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 36%;
+}
+
+.first-book-message__title {
+  color: #332c24;
+  font-family: "Times New Roman", "Noto Serif JP", serif;
+  font-size: clamp(20px, 4vw, 30px);
+  font-weight: 400;
+  letter-spacing: .12em;
+}
+
+.first-book-message__text {
+  grid-column: 1 / -1;
+}
+
+.first-book-message__dialogue {
+  z-index: 95;
+}
