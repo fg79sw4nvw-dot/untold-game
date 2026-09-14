@@ -19,6 +19,13 @@ export const FIRST_BOOK_CLOSED_PAUSE_MS = 1000;
 export const FIRST_BOOK_TITLE_PAUSE_MS = 1000;
 export const FIRST_BOOK_MESSAGE_INPUT_LOCK_MS = 10000;
 
+export const AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS = 300;
+export const LIBRARIAN_REPORT_START_PAUSE_MS = 300;
+export const LIBRARIAN_BOOK_INSPECTION_PAUSE_MS = 1000;
+export const LIBRARIAN_OBSERVES_PROTAGONIST_PAUSE_MS = 1000;
+export const LIBRARIAN_AFTER_SELF_ONLY_THOUGHT_PAUSE_MS = 300;
+export const LIBRARIAN_AFTER_FAREWELL_TO_FREE_MS = 300;
+
 export const LIBRARY_OPENING_DIALOGUE = [
   { speaker: "司書", text: "いつも手伝ってくれて、ありがとう。" },
   { speaker: "主人公", text: "好きでやってるだけなんで。" },
@@ -58,6 +65,10 @@ export const LIBRARIAN_BOOK_REPORT_DIALOGUE = [
   { speaker: "司書", text: "うん。気になるなら持っていって。" },
   { speaker: "司書", text: "気をつけて帰ってね。" },
 ] as const;
+
+export const LIBRARIAN_REPORT_BEFORE_INSPECTION_END = 5;
+export const LIBRARIAN_REPORT_BEFORE_OBSERVATION_END = 8;
+export const LIBRARIAN_REPORT_SELF_ONLY_THOUGHT_INDEX = 9;
 
 export const LIBRARIAN_REPEAT_BEFORE_BOOKMARK = "気をつけて帰ってね。";
 export const BASEMENT_LOCKED_OBSERVATION = "（鍵がかかっている。）";
