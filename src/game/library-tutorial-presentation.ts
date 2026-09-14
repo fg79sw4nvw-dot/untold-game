@@ -85,10 +85,12 @@ export class LibraryTutorialPresentation {
     if (!lines) return "blocked";
 
     const [call, ...rest] = lines;
-    if (call) await this.view.showLine(call);
+    if (call) await this.view.showLine({ speaker: "司書", text: call.text });
     this.view.faceToward(ELD_LIBRARY_LAYOUT.librarianCounter.librarianTile);
     await this.wait(BOOK_RAT_TURN_TO_DIALOGUE_MS);
-    for (const line of rest) await this.view.showLine(line);
+    for (const line of rest) {
+      await this.view.showLine({ speaker: "司書", text: line.text });
+    }
 
     this.flow.finishBookRatIntro();
     this.view.setOpeningPhase("book-rat-intro-complete");
