@@ -41,6 +41,7 @@ export class LibraryOpeningView {
   private readonly room: HTMLElement;
   private readonly protagonist: HTMLDivElement;
   private readonly bookMarker: HTMLDivElement;
+  private readonly bookmarkLight: HTMLDivElement;
   private readonly dialogue: HTMLDivElement;
   private readonly dialogueSpeaker: HTMLDivElement;
   private readonly dialogueText: HTMLDivElement;
@@ -65,6 +66,13 @@ export class LibraryOpeningView {
     this.bookMarker.setAttribute("aria-label", "BOOK");
     placeAtTile(this.bookMarker, ELD_LIBRARY_LAYOUT.openingEvent.bookTile);
     this.room.append(this.bookMarker);
+
+    this.bookmarkLight = document.createElement("div");
+    this.bookmarkLight.className = "opening-library-stage__bookmark-light";
+    this.bookmarkLight.hidden = true;
+    this.bookmarkLight.setAttribute("aria-label", "閲覧机の小さな光");
+    placeAtTile(this.bookmarkLight, ELD_LIBRARY_LAYOUT.bookmarkLight.tilePosition);
+    this.room.append(this.bookmarkLight);
 
     this.protagonist = document.createElement("div");
     this.protagonist.className = "opening-library-stage__character opening-library-stage__character--protagonist";
@@ -125,6 +133,14 @@ export class LibraryOpeningView {
 
   setOpeningPhase(phase: string): void {
     this.stage.dataset.openingPhase = phase;
+  }
+
+  showBookmarkLight(): void {
+    this.bookmarkLight.hidden = false;
+  }
+
+  hideBookmarkLight(): void {
+    this.bookmarkLight.hidden = true;
   }
 
   async moveTo(tile: LibraryTilePoint, facing?: Facing): Promise<void> {
