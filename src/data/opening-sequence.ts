@@ -32,6 +32,11 @@ export const BOOKMARK_AFTER_THOUGHT_TO_FREE_MS = 300;
 export const BOOK_RAT_EXIT_STOP_TO_CALL_MS = 300;
 export const BOOK_RAT_TURN_TO_DIALOGUE_MS = 300;
 
+export const BOOK_RAT_INTRO_TO_FIRST_RECORDING_THOUGHT_MS = 500;
+export const FIRST_RECORD_COMPLETE_TO_LIST_MS = 300;
+export const FIRST_RECORD_LIST_CLOSE_TO_THOUGHT_MS = 500;
+export const FIRST_RECORD_FINAL_THOUGHT_TO_FREE_MS = 300;
+
 export const LIBRARY_OPENING_DIALOGUE = [
   { speaker: "司書", text: "いつも手伝ってくれて、ありがとう。" },
   { speaker: "主人公", text: "好きでやってるだけなんで。" },
@@ -86,6 +91,7 @@ export const FIRST_RECORDING_THOUGHTS = [
   "（そういえば……あの本に、気になったことを書き留めておけるって書いてあったな。）",
   "（でも、どうやって……？）",
 ] as const;
+export const FIRST_RECORDING_COMPLETE_THOUGHT = "（……これが、書き留めるってことか。）";
 
 export const OPENING_UI_KNOWLEDGE = {
   bookKnownAfterAcquisition: true,
