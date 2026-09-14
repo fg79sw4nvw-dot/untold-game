@@ -26,6 +26,12 @@ export const LIBRARIAN_OBSERVES_PROTAGONIST_PAUSE_MS = 1000;
 export const LIBRARIAN_AFTER_SELF_ONLY_THOUGHT_PAUSE_MS = 300;
 export const LIBRARIAN_AFTER_FAREWELL_TO_FREE_MS = 300;
 
+export const BOOKMARK_THOUGHT_TO_CARDIZATION_MS = 500;
+export const BOOKMARK_AFTER_CARDIZATION_TO_THOUGHT_MS = 500;
+export const BOOKMARK_AFTER_THOUGHT_TO_FREE_MS = 300;
+export const BOOK_RAT_EXIT_STOP_TO_CALL_MS = 300;
+export const BOOK_RAT_TURN_TO_DIALOGUE_MS = 300;
+
 export const LIBRARY_OPENING_DIALOGUE = [
   { speaker: "司書", text: "いつも手伝ってくれて、ありがとう。" },
   { speaker: "主人公", text: "好きでやってるだけなんで。" },
@@ -74,7 +80,7 @@ export const LIBRARIAN_REPEAT_BEFORE_BOOKMARK = "気をつけて帰ってね。"
 export const BASEMENT_LOCKED_OBSERVATION = "（鍵がかかっている。）";
 export const BOOKMARK_FOUND_THOUGHT = "（栞が落ちてる。司書さんに渡しておくか。）";
 export const BOOKMARK_AFTER_CARDIZATION_THOUGHT = "（……今の、何だ？）";
-export const LIBRARY_EXIT_BLOCKED_MESSAGE = "なにか見落としている気がする";
+export const BOOKMARK_EXIT_NOTICE_THOUGHT = "（……あれは？）";
 
 export const FIRST_RECORDING_THOUGHTS = [
   "（そういえば……あの本に、気になったことを書き留めておけるって書いてあったな。）",
