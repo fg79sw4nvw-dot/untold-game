@@ -15,12 +15,17 @@ export const LIBRARY_SORTING_PAUSE_MS = 1000;
 export const LIBRARY_BOOK_DISCOVERY_PAUSE_MS = 1000;
 export const BOOK_DISCOVERY_TO_ACQUIRE_MS = 500;
 
+export const FIRST_BOOK_CLOSED_PAUSE_MS = 1000;
+export const FIRST_BOOK_TITLE_PAUSE_MS = 1000;
+export const FIRST_BOOK_MESSAGE_INPUT_LOCK_MS = 10000;
+
 export const LIBRARY_OPENING_DIALOGUE = [
   { speaker: "司書", text: "いつも手伝ってくれて、ありがとう。" },
   { speaker: "主人公", text: "好きでやってるだけなんで。" },
 ] as const;
 
 export const BOOK_DISCOVERY_THOUGHT = "（ん……？ この本は……？）";
+export const FIRST_BOOK_TITLE_THOUGHT = "（……え？ 文字が……）";
 
 export const GAME_MASTER_FIRST_MESSAGE = [
   "これを読めているなら、少なくとも少しは物好きらしい。",
