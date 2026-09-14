@@ -1,5 +1,6 @@
 import "./styles.css";
 import "./first-book-reading.css";
+import "./library-tutorial.css";
 import { ELD_LIBRARY_LAYOUT, type LibraryTilePoint } from "./data/eld-library";
 import {
   AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS,
@@ -25,7 +26,15 @@ import {
   OPENING_MONOLOGUE_PROVISIONAL_LINE_MS,
   PROTAGONIST_AFTER_FIRST_BOOK_READING,
 } from "./data/opening-sequence";
+import { ProgressState } from "./domain/progress";
+import { QuestTracker } from "./domain/quests";
+import { SpecifiedCardCollection } from "./domain/specified-cards";
+import { BookEatingRatFlow } from "./game/book-eating-rat";
+import { EldIntroFlow } from "./game/eld-intro";
+import { LibraryTutorialController } from "./game/library-tutorial-controller";
+import { LibraryTutorialPresentation } from "./game/library-tutorial-presentation";
 import { OpeningSequenceController } from "./game/opening-sequence-controller";
+import { CardizationView } from "./ui/cardization-view";
 import { FirstBookMessageView } from "./ui/first-book-message-view";
 import { LibraryOpeningView } from "./ui/library-opening-view";
 import { OpeningCinematicView } from "./ui/opening-cinematic-view";
@@ -46,9 +55,22 @@ const shell = document.querySelector<HTMLElement>(".game-shell")!;
 const libraryStage = document.querySelector<HTMLElement>(".opening-library-stage")!;
 const libraryRoom = document.querySelector<HTMLElement>(".opening-library-stage__room")!;
 const openingFlow = new OpeningSequenceController();
+const progress = new ProgressState();
+const specifiedCards = new SpecifiedCardCollection();
+const quests = new QuestTracker();
+const eldIntro = new EldIntroFlow(progress, specifiedCards);
+const bookRat = new BookEatingRatFlow(progress, quests, specifiedCards);
+const libraryTutorialFlow = new LibraryTutorialController(eldIntro, bookRat);
 const cinematic = new OpeningCinematicView(shell);
 const libraryOpening = new LibraryOpeningView(libraryStage, libraryRoom);
 const firstBookMessage = new FirstBookMessageView(shell);
+const cardization = new CardizationView(shell);
+const libraryTutorial = new LibraryTutorialPresentation(
+  libraryTutorialFlow,
+  libraryOpening,
+  cardization,
+  wait,
+);
 
 function nextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
@@ -104,6 +126,7 @@ async function playConfirmedLibrarianReport(): Promise<void> {
 
   openingFlow.finishLibrarianReport();
   libraryOpening.setOpeningPhase("free-library");
+  libraryTutorial.revealBookmarkLight();
 }
 
 async function playConfirmedFirstBookReading(): Promise<void> {
@@ -168,6 +191,7 @@ async function playConfirmedLibraryOpening(): Promise<void> {
   await libraryOpening.showLine({ speaker: null, text: BOOK_DISCOVERY_THOUGHT });
   await wait(BOOK_DISCOVERY_TO_ACQUIRE_MS);
   libraryOpening.takeBook();
+  eldIntro.markBookAcquired();
 
   await playConfirmedFirstBookReading();
 
