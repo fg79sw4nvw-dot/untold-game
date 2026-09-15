@@ -8,7 +8,11 @@ export type LibraryInteractionPhase =
   | "book-rat-intro"
   | "book-rat-intro-complete"
   | "first-recording-thoughts"
-  | "first-recording-awaiting-selection-ui";
+  | "first-recording-awaiting-selection-ui"
+  | "first-recording-awaiting-selection"
+  | "first-recording-saved"
+  | "first-recording-review"
+  | "free-library-after-first-recording";
 
 export class LibraryInteractionState {
   private phase: LibraryInteractionPhase = "opening";
@@ -22,6 +26,8 @@ export class LibraryInteractionState {
   }
 
   allowsFreeRoam(): boolean {
-    return this.phase === "free-library" || this.phase === "free-library-after-bookmark";
+    return this.phase === "free-library"
+      || this.phase === "free-library-after-bookmark"
+      || this.phase === "free-library-after-first-recording";
   }
 }
