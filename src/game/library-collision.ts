@@ -36,9 +36,11 @@ const fixtureRects: readonly LibraryTileRect[] = [
   ELD_LIBRARY_LAYOUT.shelves.centralFront,
   ELD_LIBRARY_LAYOUT.shelves.auxiliary,
   ELD_LIBRARY_LAYOUT.librarianCounter.rect,
-  ELD_LIBRARY_LAYOUT.basementStairs.rect,
   ELD_LIBRARY_LAYOUT.readingDesk.rect,
 ];
+
+// The basement stairs are intentionally omitted: the confirmed layout makes the
+// stair tile walkable while the locked door is handled as an interaction.
 
 // Preserve the existing rendered stool footprint (5% of the 640px room width)
 // while moving collision authority out of DOM measurements.
