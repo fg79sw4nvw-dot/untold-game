@@ -1,11 +1,11 @@
 export const OPENING_MONOLOGUE = [
-  "（気にしなくていいことなんて、たくさんある。）",
-  "（きっと、みんなはそうやって暮らしている。）",
-  "（分からなくても、困らないこともある。）",
-  "（それは分かっている。）",
-  "（分かっているのに、気になってしまう。）",
-  "（答えなんてないのかもしれない。）",
-  "（それでも、考えるのをやめられない。）",
+  "気にしなくていいことなんて、たくさんある。",
+  "きっと、みんなはそうやって暮らしている。",
+  "分からなくても、困らないこともある。",
+  "それは分かっている。",
+  "分かっているのに、気になってしまう。",
+  "答えなんてないのかもしれない。",
+  "それでも、考えるのをやめられない。",
 ] as const;
 
 // Wiki currently uses about four seconds per line as a provisional basis.
@@ -17,7 +17,7 @@ export const BOOK_DISCOVERY_TO_ACQUIRE_MS = 500;
 
 export const FIRST_BOOK_CLOSED_PAUSE_MS = 1000;
 export const FIRST_BOOK_TITLE_PAUSE_MS = 1000;
-export const FIRST_BOOK_MESSAGE_INPUT_LOCK_MS = 10000;
+export const FIRST_BOOK_MESSAGE_INPUT_LOCK_MS = 5000;
 
 export const AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS = 300;
 export const LIBRARIAN_REPORT_START_PAUSE_MS = 300;
@@ -83,6 +83,10 @@ export const LIBRARIAN_REPORT_BEFORE_OBSERVATION_END = 8;
 export const LIBRARIAN_REPORT_SELF_ONLY_THOUGHT_INDEX = 9;
 
 export const LIBRARIAN_REPEAT_BEFORE_BOOKMARK = "気をつけて帰ってね。";
+export const LIBRARIAN_AFTER_BOOKMARK_DIALOGUE = [
+  { speaker: "司書", text: "どうしたの？　まだ何か気になる？" },
+  { speaker: null, text: "（……いや、まだ自分でもよく分かってない。）" },
+] as const;
 export const BASEMENT_LOCKED_OBSERVATION = "（鍵がかかっている。）";
 export const BOOKMARK_FOUND_THOUGHT = "（栞が落ちてる。司書さんに渡しておくか。）";
 export const BOOKMARK_AFTER_CARDIZATION_THOUGHT = "（……今の、何だ？）";
