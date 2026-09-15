@@ -1,5 +1,9 @@
 import { ELD_LIBRARY_ID } from "../data/eld-tutorial";
 import { ITEM_HONEYED_NUT, QUEST_BOOK_EATING_RAT } from "../data/eld-content";
+import {
+  CARD_NO_BOOK_EATING_RAT,
+  CARD_NO_FORGOTTEN_BOOKMARK,
+} from "../data/specified-card-definitions";
 import type { TimeBand } from "../domain/clock";
 import { consumeOne, type PocketEntry } from "../domain/inventory";
 import { ProgressState } from "../domain/progress";
@@ -7,7 +11,7 @@ import { QuestTracker } from "../domain/quests";
 import { SpecifiedCardCollection } from "../domain/specified-cards";
 import { SpecifiedCardAcquisition } from "./specified-card-acquisition";
 
-export const CARD_BOOK_EATING_RAT = 55;
+export const CARD_BOOK_EATING_RAT = CARD_NO_BOOK_EATING_RAT;
 export const BOOK_RAT_INTRO_SEEN = "book-rat:intro-seen";
 export const BOOK_RAT_BAIT_PLACED = "book-rat:bait-placed";
 export const BOOK_RAT_SHADOW_PRESENT = "book-rat:shadow-present";
@@ -30,7 +34,7 @@ export class BookEatingRatFlow {
   }
 
   canTriggerIntro(): boolean {
-    return this.cards.has(1) && !this.progress.has(BOOK_RAT_INTRO_SEEN);
+    return this.cards.has(CARD_NO_FORGOTTEN_BOOKMARK) && !this.progress.has(BOOK_RAT_INTRO_SEEN);
   }
 
   markIntroSeen(): boolean {
