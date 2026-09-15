@@ -1,6 +1,6 @@
 const CACHE_PREFIX = "untold-pwa";
-const SHELL_CACHE = `${CACHE_PREFIX}-shell-v1`;
-const RUNTIME_CACHE = `${CACHE_PREFIX}-runtime-v1`;
+const SHELL_CACHE = `${CACHE_PREFIX}-shell-v2`;
+const RUNTIME_CACHE = `${CACHE_PREFIX}-runtime-v2`;
 
 const CORE_PATHS = [
   "/manifest.webmanifest",
@@ -63,8 +63,15 @@ async function cacheFirst(request) {
   return response;
 }
 
+async function cachedRuntimeFirst(request) {
+  const runtimeCache = await caches.open(RUNTIME_CACHE);
+  const runtimeResponse = await runtimeCache.match(request);
+  if (runtimeResponse) return runtimeResponse;
+  return caches.match(request);
+}
+
 async function staleWhileRevalidate(request, event) {
-  const cached = await caches.match(request);
+  const cached = await cachedRuntimeFirst(request);
   const updatePromise = fetch(request).then(async response => {
     if (response.ok) {
       const cache = await caches.open(RUNTIME_CACHE);
