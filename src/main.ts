@@ -1,6 +1,7 @@
 import "./styles.css";
 import "./first-book-reading.css";
 import "./library-tutorial.css";
+import { registerPwaServiceWorker } from "./pwa";
 import {
   ELD_LIBRARY_LAYOUT,
   ELD_LIBRARY_TILE_SIZE,
@@ -46,6 +47,8 @@ import { FirstBookMessageView } from "./ui/first-book-message-view";
 import { LibraryFreeRoamInput } from "./ui/library-free-roam-input";
 import { LibraryOpeningView } from "./ui/library-opening-view";
 import { OpeningCinematicView } from "./ui/opening-cinematic-view";
+
+registerPwaServiceWorker();
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
