@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "fg79sw4nvw-dot/untold-wiki",
+  "assets": [
+    {
+      "assetId": "specified-card:001:illustration",
+      "type": "specified-card-illustration",
+      "contentId": "specified-card:001",
+      "sourcePath": "assets/card-001-forgotten-bookmark.webp",
+      "sourceUrl": "https://raw.githubusercontent.com/fg79sw4nvw-dot/untold-wiki/main/assets/card-001-forgotten-bookmark.webp",
+      "sourceRevision": "6c1143686c497da29bb5ef6e59421f728066e51f",
+      "sourceSize": 339957,
+      "runtimePath": "public/assets/cards/card-001-forgotten-bookmark.webp"
+    },
+    {
+      "assetId": "specified-card:002:illustration",
+      "type": "specified-card-illustration",
+      "contentId": "specified-card:002",
+      "sourcePath": "assets/card-002-closed-box.webp",
+      "sourceUrl": "https://raw.githubusercontent.com/fg79sw4nvw-dot/untold-wiki/main/assets/card-002-closed-box.webp",
+      "sourceRevision": "5b6b12382d37b93f1caf62f01df7673798df8f48",
+      "sourceSize": 340140,
+      "runtimePath": "public/assets/cards/card-002-closed-box.webp"
+    },
+    {
+      "assetId": "specified-card:003:illustration",
+      "type": "specified-card-illustration",
+      "contentId": "specified-card:003",
+      "sourcePath": "assets/card-003-rainless-stone.webp",
+      "sourceUrl": "https://raw.githubusercontent.com/fg79sw4nvw-dot/untold-wiki/main/assets/card-003-rainless-stone.webp",
+      "sourceRevision": "3a2d88f828a089bf89b2c853de0b9ed9c6897181",
+      "sourceSize": 15030,
+      "runtimePath": "public/assets/cards/card-003-rainless-stone.webp"
+    },
+    {
+      "assetId": "specified-card:055:illustration",
+      "type": "specified-card-illustration",
+      "contentId": "specified-card:055",
+      "sourcePath": "assets/card-055-book-eating-rat.webp",
+      "sourceUrl": "https://raw.githubusercontent.com/fg79sw4nvw-dot/untold-wiki/main/assets/card-055-book-eating-rat.webp",
+      "sourceRevision": "88ac428720832fe76af25fc96312e2b5a6b1f3e3",
+      "sourceSize": 339942,
+      "runtimePath": "public/assets/cards/card-055-book-eating-rat.webp"
+    },
+    {
+      "assetId": "specified-card:056:illustration",
+      "type": "specified-card-illustration",
+      "contentId": "specified-card:056",
+      "sourcePath": "assets/card-056-mud-boar.webp",
+      "sourceUrl": "https://raw.githubusercontent.com/fg79sw4nvw-dot/untold-wiki/main/assets/card-056-mud-boar.webp",
+      "sourceRevision": "1dbd10b743634c568bf1f4e0308cb724879852e4",
+      "sourceSize": 339907,
+      "runtimePath": "public/assets/cards/card-056-mud-boar.webp"
+    },
+    {
+      "assetId": "specified-card:082:illustration",
+      "type": "specified-card-illustration",
+      "contentId": "specified-card:082",
+      "sourcePath": "assets/card-082-kind-man.webp",
+      "sourceUrl": "https://raw.githubusercontent.com/fg79sw4nvw-dot/untold-wiki/main/assets/card-082-kind-man.webp",
+      "sourceRevision": "cb30a8034721f07d137dc489242a763a3988362c",
+      "sourceSize": 339907,
+      "runtimePath": "public/assets/cards/card-082-kind-man.webp"
+    },
+    {
+      "assetId": "specified-card:083:illustration",
+      "type": "specified-card-illustration",
+      "contentId": "specified-card:083",
+      "sourcePath": "assets/card-083-question-old-woman.webp",
+      "sourceUrl": "https://raw.githubusercontent.com/fg79sw4nvw-dot/untold-wiki/main/assets/card-083-question-old-woman.webp",
+      "sourceRevision": "0b65e91f8ea00428d8d3e5c8b9b9f36fed984669",
+      "sourceSize": 339957,
+      "runtimePath": "public/assets/cards/card-083-question-old-woman.webp"
+    }
+  ]
+}
