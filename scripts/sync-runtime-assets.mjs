@@ -19,6 +19,23 @@ function gitBlobSha(buffer) {
   return hash.digest("hex");
 }
 
+function assertExpectedMediaPayload(buffer, asset) {
+  if (!asset.sourcePath.toLowerCase().endsWith(".webp")) {
+    return;
+  }
+
+  const isWebp =
+    buffer.length >= 12
+    && buffer.subarray(0, 4).toString("ascii") === "RIFF"
+    && buffer.subarray(8, 12).toString("ascii") === "WEBP";
+
+  if (!isWebp) {
+    throw new Error(
+      `Invalid WebP payload for ${asset.assetId}: ${asset.sourcePath}`,
+    );
+  }
+}
+
 for (const asset of manifest.assets) {
   const targetPath = resolve(repoRoot, asset.runtimePath);
   const publicRelativePath = relative(publicRoot, targetPath);
@@ -38,6 +55,8 @@ for (const asset of manifest.assets) {
   }
 
   const buffer = Buffer.from(await response.arrayBuffer());
+  assertExpectedMediaPayload(buffer, asset);
+
   if (buffer.length !== asset.sourceSize) {
     throw new Error(
       `Size mismatch for ${asset.assetId}: expected ${asset.sourceSize}, got ${buffer.length}`,
