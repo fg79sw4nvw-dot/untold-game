@@ -20,7 +20,7 @@ export type SavedQuestState = Readonly<{
 
 export type SaveDataV1 = Readonly<{
   schemaVersion: typeof SAVE_SCHEMA_VERSION;
-  contentSchemaVersion: typeof CONTENT_SCHEMA_VERSION;
+  contentSchemaVersion: number;
   savedAt: string;
   gameTime: GameTime;
   progressFlags: readonly string[];
@@ -179,7 +179,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 function isSaveDataV1(value: unknown): value is SaveDataV1 {
   if (!isObject(value)) return false;
   return value.schemaVersion === SAVE_SCHEMA_VERSION
-    && value.contentSchemaVersion === CONTENT_SCHEMA_VERSION
+    && typeof value.contentSchemaVersion === "number"
     && typeof value.savedAt === "string"
     && isObject(value.gameTime)
     && Array.isArray(value.progressFlags)
