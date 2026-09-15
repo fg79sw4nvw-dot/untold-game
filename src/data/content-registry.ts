@@ -35,6 +35,25 @@ const npcIds = [
   ELD_NPC_ANTIQUE_DEALER,
 ] as const;
 
+const dialogueDefinitions: ContentDefinition<"dialogue">[] = Object.entries(
+  BOOK_EATING_RAT_CLUE_SOURCES,
+).map(([dialogueId, speakerId]) => {
+  const sentence = BOOK_EATING_RAT_CLUE_SENTENCES.find(entry => entry.id === dialogueId);
+  return {
+    schemaVersion: CONTENT_SCHEMA_VERSION,
+    kind: "dialogue",
+    id: dialogueId,
+    refs: [
+      { role: "speaker", target: contentRef("npc", speakerId) },
+      { role: "quest", target: contentRef("quest", QUEST_BOOK_EATING_RAT) },
+      ...(sentence?.clueIds ?? []).map(clueId => ({
+        role: "clue",
+        target: contentRef("clue", clueId),
+      })),
+    ],
+  };
+});
+
 const baseDefinitions: ContentDefinition[] = [
   {
     schemaVersion: CONTENT_SCHEMA_VERSION,
@@ -81,25 +100,7 @@ const baseDefinitions: ContentDefinition[] = [
     id,
     refs: [{ role: "quest", target: contentRef("quest", QUEST_BOOK_EATING_RAT) }],
   })),
-  ...BOOK_EATING_RAT_CLUE_SENTENCES.map((sentence, index): ContentDefinition<"dialogue"> => ({
-    schemaVersion: CONTENT_SCHEMA_VERSION,
-    kind: "dialogue",
-    id: sentence.id,
-    refs: [
-      {
-        role: "speaker",
-        target: contentRef("npc", BOOK_EATING_RAT_CLUE_SOURCES[sentence.id]),
-      },
-      {
-        role: "quest",
-        target: contentRef("quest", QUEST_BOOK_EATING_RAT),
-      },
-      {
-        role: "clue",
-        target: contentRef("clue", clueIds[index]),
-      },
-    ],
-  })),
+  ...dialogueDefinitions,
 ];
 
 export const IMPLEMENTED_CONTENT_DEFINITIONS: readonly ContentDefinition[] = baseDefinitions;
