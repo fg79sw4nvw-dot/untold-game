@@ -9,6 +9,9 @@ import {
   type DirectionVector,
 } from "../game/floating-field-input";
 import { attemptsLibraryExit } from "../game/library-exit-trigger";
+import { ELD_LIBRARY_COLLISION_OBSTACLES } from "../game/library-collision";
+import type { LibraryInteractionState } from "../game/library-interaction-state";
+import type { LibraryPlayerState } from "../game/library-player-state";
 import type { LibraryOpeningView } from "./library-opening-view";
 
 const LIBRARY_BOUNDS: AxisAlignedRect = {
@@ -32,6 +35,8 @@ export class LibraryFreeRoamInput {
   constructor(
     private readonly stage: HTMLElement,
     private readonly view: LibraryOpeningView,
+    private readonly playerState: LibraryPlayerState,
+    private readonly interactionState: LibraryInteractionState,
     private readonly onTap: TapHandler,
     private readonly onExit: ExitHandler,
   ) {
@@ -42,7 +47,7 @@ export class LibraryFreeRoamInput {
   }
 
   private isEnabled(): boolean {
-    return this.view.getOpeningPhase().startsWith("free-library");
+    return this.interactionState.allowsFreeRoam();
   }
 
   private readonly handlePointerDown = (event: PointerEvent): void => {
@@ -105,7 +110,7 @@ export class LibraryFreeRoamInput {
     this.previousFrameTime = time;
 
     if (elapsedSeconds > 0) {
-      const current = this.view.getProtagonistPosition();
+      const current = this.playerState.getPosition();
       const delta = movementDelta(this.direction, elapsedSeconds);
 
       if (attemptsLibraryExit(current, delta)) {
@@ -120,7 +125,7 @@ export class LibraryFreeRoamInput {
       const next = moveWithAxisSliding(
         current,
         delta,
-        this.view.getCollisionObstacles(),
+        ELD_LIBRARY_COLLISION_OBSTACLES,
         LIBRARY_BOUNDS,
       );
       this.view.setProtagonistPosition(next);
