@@ -1,0 +1,51 @@
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const manifestPath = resolve(repoRoot, "asset-manifest.json");
+const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+
+if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.assets)) {
+  throw new Error("Unsupported or invalid asset-manifest.json");
+}
+
+function gitBlobSha(buffer) {
+  const hash = createHash("sha1");
+  hash.update(`blob ${buffer.length}\0`);
+  hash.update(buffer);
+  return hash.digest("hex");
+}
+
+for (const asset of manifest.assets) {
+  const targetPath = resolve(repoRoot, asset.runtimePath);
+  if (!targetPath.startsWith(resolve(repoRoot, "public") + "/")) {
+    throw new Error(`Runtime asset must stay under public/: ${asset.runtimePath}`);
+  }
+
+  const response = await fetch(asset.sourceUrl, {
+    headers: { "user-agent": "untold-runtime-asset-sync" },
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to download ${asset.assetId}: HTTP ${response.status}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (buffer.length !== asset.sourceSize) {
+    throw new Error(
+      `Size mismatch for ${asset.assetId}: expected ${asset.sourceSize}, got ${buffer.length}`,
+    );
+  }
+
+  const revision = gitBlobSha(buffer);
+  if (revision !== asset.sourceRevision) {
+    throw new Error(
+      `Revision mismatch for ${asset.assetId}: expected ${asset.sourceRevision}, got ${revision}`,
+    );
+  }
+
+  await mkdir(dirname(targetPath), { recursive: true });
+  await writeFile(targetPath, buffer);
+  console.log(`synced ${asset.assetId} -> ${asset.runtimePath}`);
+}
