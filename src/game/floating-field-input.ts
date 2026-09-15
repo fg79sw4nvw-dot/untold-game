@@ -2,7 +2,7 @@ export type ScreenPoint = Readonly<{ x: number; y: number }>;
 export type DirectionVector = Readonly<{ x: number; y: number }>;
 
 export const FIELD_MOVE_THRESHOLD_PX = 18;
-export const FIELD_MOVE_SPEED_PX_PER_SECOND = 110;
+export const FIELD_MOVE_SPEED_PX_PER_SECOND = 160;
 
 export type FloatingInputUpdate =
   | { kind: "idle" }
