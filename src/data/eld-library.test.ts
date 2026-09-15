@@ -36,10 +36,15 @@ describe("confirmed Eld library data", () => {
     expect(ELD_LIBRARY_LAYOUT.shelves.centralBack).toEqual({ x: 3, y: 4, widthTiles: 5, heightTiles: 1 });
     expect(ELD_LIBRARY_LAYOUT.shelves.centralFront).toEqual({ x: 3, y: 7, widthTiles: 5, heightTiles: 1 });
     expect(ELD_LIBRARY_LAYOUT.shelves.auxiliary).toEqual({ x: 4, y: 10, widthTiles: 5, heightTiles: 1 });
-    expect(ELD_LIBRARY_LAYOUT.librarianCounter.rect).toEqual({ x: 1, y: 12, widthTiles: 1, heightTiles: 3 });
-    expect(ELD_LIBRARY_LAYOUT.basementStairs.rect).toEqual({ x: 0, y: 12, widthTiles: 1, heightTiles: 1 });
-    expect(ELD_LIBRARY_LAYOUT.readingDesk.rect).toEqual({ x: 5, y: 13, widthTiles: 4, heightTiles: 1 });
-    expect(ELD_LIBRARY_LAYOUT.readingDesk.stoolTiles).toHaveLength(4);
+    expect(ELD_LIBRARY_LAYOUT.librarianCounter.rect).toEqual({ x: 2, y: 13, widthTiles: 1, heightTiles: 3 });
+    expect(ELD_LIBRARY_LAYOUT.basementStairs.rect).toEqual({ x: 0, y: 15, widthTiles: 1, heightTiles: 1 });
+    expect(ELD_LIBRARY_LAYOUT.readingDesk.rect).toEqual({ x: 9, y: 12, widthTiles: 1, heightTiles: 4 });
+    expect(ELD_LIBRARY_LAYOUT.readingDesk.stoolTiles).toEqual([
+      [8, 12],
+      [8, 13],
+      [8, 14],
+      [8, 15],
+    ]);
   });
 
   it("keeps the confirmed opening-event anchors", () => {
@@ -54,9 +59,13 @@ describe("confirmed Eld library data", () => {
     expect(ELD_LIBRARY_LAYOUT.openingEvent.bookTile).toEqual([3, 4]);
   });
 
-  it("keeps only unresolved final pixel coordinates unset", () => {
+  it("keeps the confirmed exit trigger while unresolved pixel coordinates stay unset", () => {
     expect(ELD_LIBRARY_MAP.interiorSpawn.pixelPosition).toBeNull();
-    expect(ELD_LIBRARY_MAP.exitTrigger).toBeNull();
+    expect(ELD_LIBRARY_MAP.exitTrigger).toEqual({
+      edge: "bottom",
+      xTiles: [4, 5],
+      transitionAfterCrossingBoundary: true,
+    });
     expect(ELD_LIBRARY_MAP.bookmarkLightPosition).toBeNull();
     expect(ELD_LIBRARY_LAYOUT.bookEatingRatInvestigationPoint.pixelPosition).toBeNull();
   });
