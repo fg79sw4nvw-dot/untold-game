@@ -2,29 +2,25 @@ import {
   ELD_LIBRARY_GRID_SIZE,
   ELD_LIBRARY_LAYOUT,
   ELD_LIBRARY_PIXEL_SIZE,
-  ELD_LIBRARY_TILE_SIZE,
   type LibraryTilePoint,
   type LibraryTileRect,
 } from "../data/eld-library";
+import type { WorldPoint } from "../game/axis-aligned-collision";
 import type { DirectionVector } from "../game/floating-field-input";
-import type { AxisAlignedRect, WorldPoint } from "../game/axis-aligned-collision";
+import {
+  LibraryPlayerState,
+  libraryTileCenter,
+  type LibraryFacing,
+} from "../game/library-player-state";
 
 const NORMAL_MOVEMENT_SPEED_PX_PER_SECOND = 110;
 
-type Facing = "up" | "right" | "down" | "left";
 type BookHolder = "protagonist" | "librarian";
 
 type DialogueLine = Readonly<{
   speaker: string | null;
   text: string;
 }>;
-
-function tileCenter([x, y]: LibraryTilePoint): WorldPoint {
-  return {
-    x: (x + 0.5) * ELD_LIBRARY_TILE_SIZE,
-    y: (y + 0.5) * ELD_LIBRARY_TILE_SIZE,
-  };
-}
 
 function placeTileRect(element: HTMLElement, rect: LibraryTileRect): void {
   const [gridWidth, gridHeight] = ELD_LIBRARY_GRID_SIZE;
@@ -35,7 +31,7 @@ function placeTileRect(element: HTMLElement, rect: LibraryTileRect): void {
 }
 
 function placeAtTile(element: HTMLElement, tile: LibraryTilePoint): void {
-  placeAtWorldPoint(element, tileCenter(tile));
+  placeAtWorldPoint(element, libraryTileCenter(tile));
 }
 
 function placeAtWorldPoint(element: HTMLElement, position: WorldPoint): void {
@@ -49,13 +45,6 @@ function movementDurationMs(from: WorldPoint, to: WorldPoint): number {
   return (distancePixels / NORMAL_MOVEMENT_SPEED_PX_PER_SECOND) * 1000;
 }
 
-function facingVector(facing: Facing): DirectionVector {
-  if (facing === "up") return { x: 0, y: -1 };
-  if (facing === "right") return { x: 1, y: 0 };
-  if (facing === "down") return { x: 0, y: 1 };
-  return { x: -1, y: 0 };
-}
-
 export class LibraryOpeningView {
   private readonly stage: HTMLElement;
   private readonly room: HTMLElement;
@@ -65,11 +54,12 @@ export class LibraryOpeningView {
   private readonly dialogue: HTMLDivElement;
   private readonly dialogueSpeaker: HTMLDivElement;
   private readonly dialogueText: HTMLDivElement;
-  private protagonistTile: LibraryTilePoint = ELD_LIBRARY_LAYOUT.openingEvent.sortingAnchors[0];
-  private protagonistPosition: WorldPoint = tileCenter(this.protagonistTile);
-  private protagonistFacing: Facing = "up";
 
-  constructor(stage: HTMLElement, room: HTMLElement) {
+  constructor(
+    stage: HTMLElement,
+    room: HTMLElement,
+    private readonly playerState: LibraryPlayerState,
+  ) {
     this.stage = stage;
     this.room = room;
 
@@ -99,8 +89,8 @@ export class LibraryOpeningView {
     this.protagonist = document.createElement("div");
     this.protagonist.className = "opening-library-stage__character opening-library-stage__character--protagonist";
     this.protagonist.setAttribute("aria-label", "主人公");
-    this.setFacing("up");
-    placeAtWorldPoint(this.protagonist, this.protagonistPosition);
+    this.setFacing(this.playerState.getFacing());
+    placeAtWorldPoint(this.protagonist, this.playerState.getPosition());
     this.room.append(this.protagonist);
 
     this.dialogue = document.createElement("div");
@@ -145,69 +135,33 @@ export class LibraryOpeningView {
     }
   }
 
-  setFacing(facing: Facing): void {
-    this.protagonistFacing = facing;
-    this.protagonist?.setAttribute("data-facing", facing);
+  private renderFacing(): void {
+    this.protagonist.setAttribute("data-facing", this.playerState.getFacing());
   }
 
-  getFacingVector(): DirectionVector {
-    return facingVector(this.protagonistFacing);
-  }
-
-  getProtagonistPosition(): WorldPoint {
-    return this.protagonistPosition;
+  setFacing(facing: LibraryFacing): void {
+    this.playerState.setFacing(facing);
+    this.renderFacing();
   }
 
   setProtagonistPosition(position: WorldPoint): void {
     this.protagonist.style.transitionDuration = "0ms";
-    this.protagonistPosition = position;
+    this.playerState.setPosition(position);
     placeAtWorldPoint(this.protagonist, position);
   }
 
-  getCollisionObstacles(): AxisAlignedRect[] {
-    const roomRect = this.room.getBoundingClientRect();
-    if (roomRect.width <= 0 || roomRect.height <= 0) return [];
-    const scaleX = ELD_LIBRARY_PIXEL_SIZE[0] / roomRect.width;
-    const scaleY = ELD_LIBRARY_PIXEL_SIZE[1] / roomRect.height;
-
-    return Array.from(this.room.querySelectorAll<HTMLElement>(
-      ".opening-library-stage__fixture, .opening-library-stage__stool",
-    )).map(element => {
-      const rect = element.getBoundingClientRect();
-      return {
-        left: (rect.left - roomRect.left) * scaleX,
-        top: (rect.top - roomRect.top) * scaleY,
-        right: (rect.right - roomRect.left) * scaleX,
-        bottom: (rect.bottom - roomRect.top) * scaleY,
-      };
-    });
-  }
-
   faceMovementDirection(direction: DirectionVector): void {
-    if (Math.abs(direction.x) > Math.abs(direction.y)) {
-      this.setFacing(direction.x >= 0 ? "right" : "left");
-      return;
-    }
-    this.setFacing(direction.y >= 0 ? "down" : "up");
+    this.playerState.faceMovementDirection(direction);
+    this.renderFacing();
   }
 
-  faceToward([targetX, targetY]: LibraryTilePoint): void {
-    const target = tileCenter([targetX, targetY]);
-    const dx = target.x - this.protagonistPosition.x;
-    const dy = target.y - this.protagonistPosition.y;
-    this.faceMovementDirection({ x: dx, y: dy });
+  faceToward(tile: LibraryTilePoint): void {
+    this.playerState.faceToward(tile);
+    this.renderFacing();
   }
 
   setBookHolder(holder: BookHolder): void {
     this.stage.dataset.bookHolder = holder;
-  }
-
-  setOpeningPhase(phase: string): void {
-    this.stage.dataset.openingPhase = phase;
-  }
-
-  getOpeningPhase(): string {
-    return this.stage.dataset.openingPhase ?? "";
   }
 
   showBookmarkLight(): void {
@@ -218,13 +172,13 @@ export class LibraryOpeningView {
     this.bookmarkLight.hidden = true;
   }
 
-  async moveTo(tile: LibraryTilePoint, facing?: Facing): Promise<void> {
-    const target = tileCenter(tile);
-    const durationMs = movementDurationMs(this.protagonistPosition, target);
+  async moveTo(tile: LibraryTilePoint, facing?: LibraryFacing): Promise<void> {
+    const from = this.playerState.getPosition();
+    const target = libraryTileCenter(tile);
+    const durationMs = movementDurationMs(from, target);
     this.protagonist.style.transitionDuration = `${durationMs}ms`;
     placeAtWorldPoint(this.protagonist, target);
-    this.protagonistPosition = target;
-    this.protagonistTile = tile;
+    this.playerState.setPosition(target);
 
     if (durationMs > 0) {
       await new Promise<void>(resolve => window.setTimeout(resolve, durationMs));
@@ -233,7 +187,7 @@ export class LibraryOpeningView {
     if (facing !== undefined) this.setFacing(facing);
   }
 
-  async moveAlong(tiles: readonly LibraryTilePoint[], finalFacing?: Facing): Promise<void> {
+  async moveAlong(tiles: readonly LibraryTilePoint[], finalFacing?: LibraryFacing): Promise<void> {
     for (const tile of tiles) await this.moveTo(tile);
     if (finalFacing !== undefined) this.setFacing(finalFacing);
   }
