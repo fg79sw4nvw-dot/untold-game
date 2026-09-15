@@ -39,6 +39,8 @@ import { SpecifiedCardCollection } from "./domain/specified-cards";
 import { BookEatingRatFlow } from "./game/book-eating-rat";
 import { EldIntroFlow } from "./game/eld-intro";
 import { rankInteractionCandidates } from "./game/interaction-targeting";
+import { LibraryInteractionState } from "./game/library-interaction-state";
+import { LibraryPlayerState } from "./game/library-player-state";
 import { LibraryTutorialController } from "./game/library-tutorial-controller";
 import { LibraryTutorialPresentation } from "./game/library-tutorial-presentation";
 import { OpeningSequenceController } from "./game/opening-sequence-controller";
@@ -72,19 +74,28 @@ const quests = new QuestTracker();
 const eldIntro = new EldIntroFlow(progress, specifiedCards);
 const bookRat = new BookEatingRatFlow(progress, quests, specifiedCards);
 const libraryTutorialFlow = new LibraryTutorialController(eldIntro, bookRat);
+const libraryPlayerState = new LibraryPlayerState();
+const libraryInteractionState = new LibraryInteractionState();
 const cinematic = new OpeningCinematicView(shell);
-const libraryOpening = new LibraryOpeningView(libraryStage, libraryRoom);
+const libraryOpening = new LibraryOpeningView(
+  libraryStage,
+  libraryRoom,
+  libraryPlayerState,
+);
 const firstBookMessage = new FirstBookMessageView(shell);
 const cardization = new CardizationView(shell);
 const libraryTutorial = new LibraryTutorialPresentation(
   libraryTutorialFlow,
   libraryOpening,
   cardization,
+  libraryInteractionState,
   wait,
 );
 const libraryFreeRoam = new LibraryFreeRoamInput(
   libraryStage,
   libraryOpening,
+  libraryPlayerState,
+  libraryInteractionState,
   handleLibraryTap,
   handleLibraryExitAttempt,
 );
@@ -110,8 +121,8 @@ async function handleLibraryTap(): Promise<void> {
   if (!libraryTutorialFlow.shouldShowBookmarkLight()) return;
 
   const ranked = rankInteractionCandidates(
-    libraryOpening.getProtagonistPosition(),
-    libraryOpening.getFacingVector(),
+    libraryPlayerState.getPosition(),
+    libraryPlayerState.getFacingVector(),
     [{
       value: "bookmark-light" as const,
       position: tileCenter(ELD_LIBRARY_LAYOUT.bookmarkLight.tilePosition),
@@ -123,7 +134,7 @@ async function handleLibraryTap(): Promise<void> {
 }
 
 async function beginFirstRecordingThoughts(): Promise<void> {
-  libraryOpening.setOpeningPhase("first-recording-thoughts");
+  libraryInteractionState.setPhase("first-recording-thoughts");
   await wait(BOOK_RAT_INTRO_TO_FIRST_RECORDING_THOUGHT_MS);
   for (const thought of FIRST_RECORDING_THOUGHTS) {
     await libraryOpening.showLine({ speaker: null, text: thought });
@@ -132,7 +143,7 @@ async function beginFirstRecordingThoughts(): Promise<void> {
   // The fixed target sentence is confirmed, but the concrete candidate-selection
   // presentation for the first recording remains unresolved in the Wiki.
   // Stop at the confirmed UI boundary rather than inventing that presentation.
-  libraryOpening.setOpeningPhase("first-recording-awaiting-selection-ui");
+  libraryInteractionState.setPhase("first-recording-awaiting-selection-ui");
 }
 
 async function handleLibraryExitAttempt(): Promise<void> {
@@ -158,7 +169,7 @@ async function playConfirmedLibrarianReport(): Promise<void> {
   await wait(LIBRARIAN_REPORT_START_PAUSE_MS);
 
   if (!openingFlow.beginLibrarianReport()) return;
-  libraryOpening.setOpeningPhase("librarian-report");
+  libraryInteractionState.setPhase("librarian-report");
 
   await showDialogueRange(0, LIBRARIAN_REPORT_BEFORE_INSPECTION_END);
 
@@ -187,7 +198,7 @@ async function playConfirmedLibrarianReport(): Promise<void> {
   await wait(LIBRARIAN_AFTER_FAREWELL_TO_FREE_MS);
 
   openingFlow.finishLibrarianReport();
-  libraryOpening.setOpeningPhase("free-library");
+  libraryInteractionState.setPhase("free-library");
   libraryTutorial.revealBookmarkLight();
 }
 
