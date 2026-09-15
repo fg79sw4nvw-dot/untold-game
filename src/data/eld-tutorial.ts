@@ -3,6 +3,10 @@ import {
   CLUE_BOOK_EATING_RAT_PAPER,
   CLUE_BOOK_EATING_RAT_SHADOW,
 } from "./eld-content";
+import {
+  CARD_NO_BOOK_EATING_RAT,
+  CARD_NO_FORGOTTEN_BOOKMARK,
+} from "./specified-card-definitions";
 
 export const ELD_LIBRARY_ID = "eld-library";
 
@@ -15,6 +19,6 @@ export const BOOK_RAT_CLUES = {
 } as const;
 
 export const CONFIRMED_ELD_CARD_IDS = {
-  forgottenBookmark: 1,
-  bookEatingRat: 55,
+  forgottenBookmark: CARD_NO_FORGOTTEN_BOOKMARK,
+  bookEatingRat: CARD_NO_BOOK_EATING_RAT,
 } as const;
