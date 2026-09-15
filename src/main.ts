@@ -9,6 +9,7 @@ import {
 } from "./data/eld-library";
 import {
   AFTER_FIRST_BOOK_THOUGHT_TO_LIBRARIAN_MOVE_MS,
+  BASEMENT_LOCKED_OBSERVATION,
   BOOK_DISCOVERY_THOUGHT,
   BOOK_DISCOVERY_TO_ACQUIRE_MS,
   BOOK_RAT_INTRO_TO_FIRST_RECORDING_THOUGHT_MS,
@@ -17,11 +18,13 @@ import {
   FIRST_BOOK_TITLE_PAUSE_MS,
   FIRST_BOOK_TITLE_THOUGHT,
   FIRST_RECORDING_THOUGHTS,
+  LIBRARIAN_AFTER_BOOKMARK_DIALOGUE,
   LIBRARIAN_AFTER_FAREWELL_TO_FREE_MS,
   LIBRARIAN_AFTER_SELF_ONLY_THOUGHT_PAUSE_MS,
   LIBRARIAN_BOOK_INSPECTION_PAUSE_MS,
   LIBRARIAN_BOOK_REPORT_DIALOGUE,
   LIBRARIAN_OBSERVES_PROTAGONIST_PAUSE_MS,
+  LIBRARIAN_REPEAT_BEFORE_BOOKMARK,
   LIBRARIAN_REPORT_BEFORE_INSPECTION_END,
   LIBRARIAN_REPORT_BEFORE_OBSERVATION_END,
   LIBRARIAN_REPORT_SELF_ONLY_THOUGHT_INDEX,
@@ -117,20 +120,59 @@ function tileCenter([x, y]: LibraryTilePoint): { x: number; y: number } {
   };
 }
 
+async function showLines(lines: readonly { speaker: string | null; text: string }[]): Promise<void> {
+  for (const line of lines) await libraryOpening.showLine(line);
+}
+
 async function handleLibraryTap(): Promise<void> {
-  if (!libraryTutorialFlow.shouldShowBookmarkLight()) return;
+  const candidates: Array<{
+    value: "bookmark-light" | "librarian" | "basement-door";
+    position: { x: number; y: number };
+  }> = [
+    {
+      value: "librarian",
+      position: tileCenter(ELD_LIBRARY_LAYOUT.librarianCounter.librarianTile),
+    },
+    {
+      value: "basement-door",
+      position: tileCenter(ELD_LIBRARY_LAYOUT.basementStairs.rect ? [
+        ELD_LIBRARY_LAYOUT.basementStairs.rect.x,
+        ELD_LIBRARY_LAYOUT.basementStairs.rect.y,
+      ] : [0, 15]),
+    },
+  ];
+
+  if (libraryTutorialFlow.shouldShowBookmarkLight()) {
+    candidates.push({
+      value: "bookmark-light",
+      position: tileCenter(ELD_LIBRARY_LAYOUT.bookmarkLight.tilePosition),
+    });
+  }
 
   const ranked = rankInteractionCandidates(
     libraryPlayerState.getPosition(),
     libraryPlayerState.getFacingVector(),
-    [{
-      value: "bookmark-light" as const,
-      position: tileCenter(ELD_LIBRARY_LAYOUT.bookmarkLight.tilePosition),
-    }],
+    candidates,
   );
 
-  if (ranked[0]?.value !== "bookmark-light") return;
-  await libraryTutorial.inspectBookmarkLight();
+  const target = ranked[0]?.value;
+  if (target === "bookmark-light") {
+    await libraryTutorial.inspectBookmarkLight();
+    return;
+  }
+
+  if (target === "basement-door") {
+    await libraryOpening.showLine({ speaker: null, text: BASEMENT_LOCKED_OBSERVATION });
+    return;
+  }
+
+  if (target === "librarian") {
+    if (libraryTutorialFlow.shouldShowBookmarkLight()) {
+      await libraryOpening.showLine({ speaker: "司書", text: LIBRARIAN_REPEAT_BEFORE_BOOKMARK });
+      return;
+    }
+    await showLines(LIBRARIAN_AFTER_BOOKMARK_DIALOGUE);
+  }
 }
 
 async function beginFirstRecordingThoughts(): Promise<void> {
@@ -172,8 +214,6 @@ async function playConfirmedLibrarianReport(): Promise<void> {
   libraryInteractionState.setPhase("librarian-report");
 
   await showDialogueRange(0, LIBRARIAN_REPORT_BEFORE_INSPECTION_END);
-
-  // The transfer itself is confirmed, while a dedicated hand-over animation is not.
   libraryOpening.setBookHolder("librarian");
   await wait(LIBRARIAN_BOOK_INSPECTION_PAUSE_MS);
 
@@ -207,18 +247,9 @@ async function playConfirmedFirstBookReading(): Promise<void> {
 
   firstBookMessage.showClosedBook();
   await wait(FIRST_BOOK_CLOSED_PAUSE_MS);
-
-  // The cover-opening animation exists in the confirmed sequence, but its
-  // concrete duration and motion are still unresolved. Keep the state boundary
-  // explicit without inventing a duration here.
   firstBookMessage.showTitleSpread();
   await wait(FIRST_BOOK_TITLE_PAUSE_MS);
-
   await firstBookMessage.showThought(FIRST_BOOK_TITLE_THOUGHT);
-
-  // The page-turn animation from the title spread to pages 2-3 is likewise a
-  // confirmed beat with unresolved duration. The view switches only after the
-  // title thought has ended; animation timing can be inserted at this boundary.
   firstBookMessage.showGameMasterSpread();
   await firstBookMessage.waitForDismissAfterLock(FIRST_BOOK_MESSAGE_INPUT_LOCK_MS);
   firstBookMessage.hide();
@@ -235,21 +266,14 @@ async function playConfirmedLibraryOpening(): Promise<void> {
 
   libraryOpening.setFacing("up");
   await wait(LIBRARY_SORTING_PAUSE_MS);
-
   await libraryOpening.moveTo(sorting2, "up");
   await wait(LIBRARY_SORTING_PAUSE_MS);
-
   await libraryOpening.moveTo(sorting3, "up");
   await wait(LIBRARY_SORTING_PAUSE_MS);
 
-  for (const line of LIBRARY_OPENING_DIALOGUE) {
-    await libraryOpening.showLine(line);
-  }
+  for (const line of LIBRARY_OPENING_DIALOGUE) await libraryOpening.showLine(line);
 
-  const sorting4Approach: readonly LibraryTilePoint[] = [
-    [routeColumn, sorting4[1]],
-    sorting4,
-  ];
+  const sorting4Approach: readonly LibraryTilePoint[] = [[routeColumn, sorting4[1]], sorting4];
   await libraryOpening.moveAlong(sorting4Approach, "up");
   await wait(LIBRARY_SORTING_PAUSE_MS);
 
@@ -265,22 +289,17 @@ async function playConfirmedLibraryOpening(): Promise<void> {
   await wait(BOOK_DISCOVERY_TO_ACQUIRE_MS);
   libraryOpening.takeBook();
   eldIntro.markBookAcquired();
-
   await playConfirmedFirstBookReading();
-
   void sorting1;
 }
 
 async function enterLibrary(): Promise<void> {
   if (!openingFlow.enterLibraryIntro()) return;
-
   cinematic.hide();
   shell.classList.add("game-shell--blackout");
   await nextFrame();
-
   libraryStage.hidden = false;
   shell.classList.remove("game-shell--blackout");
-
   await playConfirmedLibraryOpening();
 }
 
@@ -289,7 +308,6 @@ async function playOpeningCinematic(): Promise<void> {
     cinematic.showLine(index);
     await wait(OPENING_MONOLOGUE_PROVISIONAL_LINE_MS);
   }
-
   await enterLibrary();
 }
 
