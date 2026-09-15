@@ -3,6 +3,7 @@ import {
   BOOKMARK_AFTER_CARDIZATION_THOUGHT,
   BOOKMARK_AFTER_CARDIZATION_TO_THOUGHT_MS,
   BOOKMARK_AFTER_THOUGHT_TO_FREE_MS,
+  BOOKMARK_CARDIZATION_PRESENTATION_MS,
   BOOKMARK_FOUND_THOUGHT,
   BOOKMARK_THOUGHT_TO_CARDIZATION_MS,
   BOOK_RAT_EXIT_STOP_TO_CALL_MS,
@@ -54,7 +55,8 @@ export class LibraryTutorialPresentation {
     this.view.hideBookmarkLight();
     this.interactionState.setPhase("bookmark-cardization");
     this.cardization.show(definition);
-    return true;
+    await this.wait(BOOKMARK_CARDIZATION_PRESENTATION_MS);
+    return this.completeBookmarkCardization();
   }
 
   async completeBookmarkCardization(): Promise<boolean> {
