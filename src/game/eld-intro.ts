@@ -1,4 +1,7 @@
-import type { SpecifiedCardDefinition } from "../data/specified-card-definitions";
+import {
+  CARD_NO_FORGOTTEN_BOOKMARK,
+  type SpecifiedCardDefinition,
+} from "../data/specified-card-definitions";
 import {
   BASEMENT_LOCKED_OBSERVATION,
   BOOKMARK_EXIT_NOTICE_THOUGHT,
@@ -9,7 +12,7 @@ import { SpecifiedCardCollection } from "../domain/specified-cards";
 import { BOOK_RAT_INTRO_SEEN } from "./book-eating-rat";
 import { SpecifiedCardAcquisition } from "./specified-card-acquisition";
 
-export const CARD_FORGOTTEN_BOOKMARK = 1;
+export const CARD_FORGOTTEN_BOOKMARK = CARD_NO_FORGOTTEN_BOOKMARK;
 export const ELD_INTRO_BOOK_ACQUIRED = "eld-intro:book-acquired";
 
 export type LibraryExitResult = {
