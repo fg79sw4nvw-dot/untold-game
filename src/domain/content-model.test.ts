@@ -12,13 +12,15 @@ import {
   QUEST_BOOK_EATING_RAT,
   BOOK_EATING_RAT_CLUE_SENTENCES,
 } from "../data/eld-content";
+import { IMPLEMENTED_CONTENT_REGISTRY } from "../data/content-registry";
+import { CARD_NO_BOOK_EATING_RAT } from "../data/specified-card-definitions";
 
 describe("P0-1 shared content model", () => {
   it("resolves existing UNTOLD content through typed references", () => {
     const card55: ContentDefinition<"specifiedCard"> = {
       schemaVersion: CONTENT_SCHEMA_VERSION,
       kind: "specifiedCard",
-      id: specifiedCardRef(55).id,
+      id: specifiedCardRef(CARD_NO_BOOK_EATING_RAT).id,
       refs: [],
     };
 
@@ -34,7 +36,7 @@ describe("P0-1 shared content model", () => {
       kind: "quest",
       id: QUEST_BOOK_EATING_RAT,
       refs: [
-        { role: "specified-card", target: specifiedCardRef(55) },
+        { role: "specified-card", target: specifiedCardRef(CARD_NO_BOOK_EATING_RAT) },
         { role: "introduced-by", target: contentRef("npc", ELD_NPC_LIBRARIAN) },
       ],
     };
@@ -51,9 +53,13 @@ describe("P0-1 shared content model", () => {
 
     const registry = new ContentRegistry([card55, librarian, quest, dialogue]);
 
-    expect(registry.has(specifiedCardRef(55))).toBe(true);
+    expect(registry.has(specifiedCardRef(CARD_NO_BOOK_EATING_RAT))).toBe(true);
     expect(registry.has(contentRef("npc", ELD_NPC_LIBRARIAN))).toBe(true);
     expect(registry.unresolvedReferences()).toEqual([]);
+  });
+
+  it("keeps all currently registered implementation references resolvable", () => {
+    expect(IMPLEMENTED_CONTENT_REGISTRY.unresolvedReferences()).toEqual([]);
   });
 
   it("detects missing cross-content references before content reaches runtime", () => {
