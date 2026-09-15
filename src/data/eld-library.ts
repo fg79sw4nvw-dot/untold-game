@@ -55,12 +55,13 @@ export const ELD_LIBRARY_LAYOUT = {
     pixelPosition: null,
   },
   librarianCounter: {
-    rect: { x: 1, y: 12, widthTiles: 1, heightTiles: 3 } as LibraryTileRect,
-    librarianTile: [0, 13] as const satisfies LibraryTilePoint,
+    rect: { x: 2, y: 13, widthTiles: 1, heightTiles: 3 } as LibraryTileRect,
+    librarianTile: [1, 14] as const satisfies LibraryTilePoint,
     librarianFacing: "right",
   },
   basementStairs: {
-    rect: { x: 0, y: 12, widthTiles: 1, heightTiles: 1 } as LibraryTileRect,
+    rect: { x: 0, y: 15, widthTiles: 1, heightTiles: 1 } as LibraryTileRect,
+    walkable: true,
     blockedByLockedDoorAtGameStart: true,
   },
   shelves: {
@@ -72,18 +73,18 @@ export const ELD_LIBRARY_LAYOUT = {
     auxiliary: { x: 4, y: 10, widthTiles: 5, heightTiles: 1 } as LibraryTileRect,
   },
   readingDesk: {
-    rect: { x: 5, y: 13, widthTiles: 4, heightTiles: 1 } as LibraryTileRect,
+    rect: { x: 9, y: 12, widthTiles: 1, heightTiles: 4 } as LibraryTileRect,
     stoolTiles: [
-      [5, 12],
-      [6, 12],
-      [7, 12],
       [8, 12],
+      [8, 13],
+      [8, 14],
+      [8, 15],
     ] as const satisfies readonly LibraryTilePoint[],
-    seatedFacing: "down",
+    seatedFacing: "right",
   },
   bookmarkLight: {
-    tilePosition: [5, 13] as const satisfies LibraryTilePoint,
-    investigationTile: [4, 13] as const satisfies LibraryTilePoint,
+    tilePosition: [9, 14] as const satisfies LibraryTilePoint,
+    investigationTile: [8, 14] as const satisfies LibraryTilePoint,
     investigationFacing: "right",
     pixelPosition: null,
   },
@@ -101,7 +102,7 @@ export const ELD_LIBRARY_LAYOUT = {
     bookDiscoveryTile: [3, 5] as const satisfies LibraryTilePoint,
     bookTile: [3, 4] as const satisfies LibraryTilePoint,
     routeAroundCentralShelfColumn: 2,
-    librarianReportTile: [2, 13] as const satisfies LibraryTilePoint,
+    librarianReportTile: [3, 14] as const satisfies LibraryTilePoint,
     librarianReportFacing: "left",
   },
 } as const;
@@ -112,6 +113,10 @@ export const ELD_LIBRARY_MAP = {
   townEntryAnchor: ELD_LIBRARY_ENTRY_ANCHOR,
   interiorSize: ELD_LIBRARY_PIXEL_SIZE,
   interiorSpawn: ELD_LIBRARY_LAYOUT.playerSpawn,
-  exitTrigger: null,
+  exitTrigger: {
+    edge: "bottom",
+    xTiles: ELD_LIBRARY_LAYOUT.entrance.xTiles,
+    transitionAfterCrossingBoundary: true,
+  },
   bookmarkLightPosition: ELD_LIBRARY_LAYOUT.bookmarkLight.pixelPosition,
 } as const;
