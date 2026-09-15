@@ -63,6 +63,24 @@ async function cacheFirst(request) {
   return response;
 }
 
+async function staleWhileRevalidate(request, event) {
+  const cached = await caches.match(request);
+  const updatePromise = fetch(request).then(async response => {
+    if (response.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  });
+
+  if (cached) {
+    event.waitUntil(updatePromise.catch(() => undefined));
+    return cached;
+  }
+
+  return updatePromise;
+}
+
 async function networkFirst(request, fallbackUrl) {
   try {
     const response = await fetch(request);
@@ -91,6 +109,11 @@ self.addEventListener("fetch", event => {
 
   if (request.mode === "navigate") {
     event.respondWith(networkFirst(request, "/"));
+    return;
+  }
+
+  if (url.pathname.startsWith("/assets/cards/")) {
+    event.respondWith(staleWhileRevalidate(request, event));
     return;
   }
 
