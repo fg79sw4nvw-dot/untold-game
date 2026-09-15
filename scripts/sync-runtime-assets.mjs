@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const publicRoot = resolve(repoRoot, "public");
 const manifestPath = resolve(repoRoot, "asset-manifest.json");
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 
@@ -20,7 +21,12 @@ function gitBlobSha(buffer) {
 
 for (const asset of manifest.assets) {
   const targetPath = resolve(repoRoot, asset.runtimePath);
-  if (!targetPath.startsWith(resolve(repoRoot, "public") + "/")) {
+  const publicRelativePath = relative(publicRoot, targetPath);
+  if (
+    publicRelativePath === ""
+    || publicRelativePath.startsWith("..")
+    || isAbsolute(publicRelativePath)
+  ) {
     throw new Error(`Runtime asset must stay under public/: ${asset.runtimePath}`);
   }
 
